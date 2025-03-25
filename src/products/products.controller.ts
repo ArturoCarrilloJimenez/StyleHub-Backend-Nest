@@ -10,15 +10,17 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
+import { CreateProductDto, UpdateProductDto } from './dto/';
+import { Auth } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @Auth(ValidRoles.admin)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -34,6 +36,7 @@ export class ProductsController {
   }
 
   @Patch(':term')
+  @Auth(ValidRoles.admin)
   update(
     @Param('term', ParseUUIDPipe) term: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -42,6 +45,7 @@ export class ProductsController {
   }
 
   @Delete(':term')
+  @Auth(ValidRoles.admin)
   remove(@Param('term', ParseUUIDPipe) term: string) {
     return this.productsService.remove(term);
   }
