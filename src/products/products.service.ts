@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DataSource, Repository } from 'typeorm';
@@ -15,6 +9,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { ProductImage } from './entities/product.image.entity';
+import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 
 @Injectable()
 export class ProductsService {
@@ -44,7 +39,7 @@ export class ProductsService {
 
       return product;
     } catch (error) {
-      this.handleExceptions(error);
+      handleExceptions(error, this.logger);
     }
   }
 
@@ -129,7 +124,7 @@ export class ProductsService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
-      this.handleExceptions(error);
+      handleExceptions(error, this.logger);
     }
   }
 
@@ -149,17 +144,7 @@ export class ProductsService {
     try {
       return await query.delete().where({}).execute();
     } catch (error) {
-      this.handleExceptions(error);
+      handleExceptions(error, this.logger);
     }
-  }
-
-  private handleExceptions(error) {
-    this.logger.error(error);
-
-    if (error.code == 23505) throw new BadRequestException(error.detail);
-    if (error.code == '22P02')
-      throw new BadRequestException('Invalid format of UUID');
-
-    throw new InternalServerErrorException('Erro - not found create product');
   }
 }
