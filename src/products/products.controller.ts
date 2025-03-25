@@ -12,8 +12,9 @@ import {
 import { ProductsService } from './products.service';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { CreateProductDto, UpdateProductDto } from './dto/';
-import { Auth } from 'src/auth/decorators';
+import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
+import { User } from 'src/auth/entities/auth.entity';
 
 @Controller('products')
 export class ProductsController {
@@ -21,8 +22,8 @@ export class ProductsController {
 
   @Post()
   @Auth(ValidRoles.admin)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
+    return this.productsService.create(createProductDto, user);
   }
 
   @Get()
