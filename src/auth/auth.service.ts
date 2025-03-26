@@ -1,13 +1,13 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+
 import { Repository } from 'typeorm';
 import { User } from './entities/auth.entity';
-
-import * as bcrypt from 'bcrypt';
-import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { CreateUserDto, LoginUserDto } from './dto/';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
-import { JwtService } from '@nestjs/jwt';
+import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
+import { EncryptingData } from 'src/commons/utils/encriptData.utils';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +18,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
 
     private readonly jwtService: JwtService,
+
+    private readonly encryptData: EncryptingData,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -26,7 +28,7 @@ export class AuthService {
     try {
       const user = this.userRepository.create({
         ...userDto,
-        password: bcrypt.hashSync(password, 10),
+        password: this.encryptData.encrypt(password),
       });
 
       await this.userRepository.save(user);
@@ -44,16 +46,16 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email: lowerEmail },
-      select: { email: true, password: true },
+      select: { email: true, password: true, id: true },
     });
 
     if (!user)
       throw new UnauthorizedException('Credential are not valid (email)');
 
-    if (!bcrypt.compareSync(password, user.password))
+    if (!this.encryptData.isValidate(password, user.password))
       throw new UnauthorizedException('Credential are not valid (password)');
 
-    return { ...user, token: this.getJwtToken({ id: user.id }) };
+    return { email, token: this.getJwtToken({ id: user.id }) };
   }
 
   private getJwtToken(payload: JwtPayload) {
