@@ -19,6 +19,12 @@ import { ValidRoles } from './interfaces';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkAuthStatus(user);
+  }
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.authService.create(createUserDto);
@@ -27,42 +33,5 @@ export class AuthController {
   @Post('login')
   login(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
-  }
-
-  @Get('private')
-  @UseGuards(AuthGuard())
-  testingPrivateRouter(
-    @GetUser() user: User,
-    @GetUser('email') userEmail: User,
-    @RowHeader() rowHeader: string[],
-    @Headers() headers: IncomingHttpHeaders,
-  ) {
-    return {
-      ok: true,
-      message: 'Hello, this is a private route',
-      user,
-      userEmail,
-      rowHeader,
-      headers,
-    };
-  }
-
-  @Get('private2')
-  @RoleProtected(ValidRoles.admin, ValidRoles.superUser)
-  @UseGuards(AuthGuard(), UserRoleGuard)
-  testingPrivate2Router(@GetUser() user: User) {
-    return {
-      ok: true,
-      user,
-    };
-  }
-
-  @Get('private3')
-  @Auth(ValidRoles.admin, ValidRoles.superUser)
-  testingPrivate3Router(@GetUser() user: User) {
-    return {
-      ok: true,
-      user,
-    };
   }
 }
