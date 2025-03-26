@@ -17,7 +17,9 @@ import { DirNameFile } from './interfaces/fileType.interface';
 import { DirNameFilePipe } from './pipes/dir-name-file/dir-name-file.pipe';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Files, Get and Uploads')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -26,6 +28,7 @@ export class FilesController {
   ) {}
 
   @Get(':type/:fileName')
+  @ApiTags()
   findProductImage(
     @Res() res: Response,
     @Param('type', DirNameFilePipe) type: DirNameFile,
