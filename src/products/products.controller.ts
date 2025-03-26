@@ -20,6 +20,7 @@ import { User } from 'src/auth/entities/auth.entity';
 import { Product } from './entities';
 
 // TODO añadir método con like por nombre de producto entre otras cosas, esto se usara en un futuro para un búsqueda
+// TODO añadir métodos para filtrar productos por el type y subtype
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}

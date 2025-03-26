@@ -13,7 +13,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'product' })
 export class Product {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,13 +23,13 @@ export class Product {
   })
   title: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: 0 })
   @Column('float', {
     default: 0,
   })
   price: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @Column({
     type: 'text',
     nullable: true,
@@ -42,7 +42,7 @@ export class Product {
   })
   slug: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: 0 })
   @Column('int', {
     default: 0,
   })
@@ -62,7 +62,7 @@ export class Product {
   @Column('text')
   gender: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: [] })
   @Column('text', {
     array: true,
     default: [],
