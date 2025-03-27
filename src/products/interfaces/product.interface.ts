@@ -1,5 +1,23 @@
-export type ValidSizes = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
+export enum ValidSizes {
+  'XS' = 'XS',
+  'S' = 'S',
+  'M' = 'M',
+  'L' = 'L',
+  'XL' = 'XL',
+  'XXL' = 'XXL',
+  'XXXL' = 'XXXL',
+}
 
-export type ValidTypes = 'shirts' | 'pants' | 'hoodies' | 'hats';
+export enum ValidTypes {
+  'shirts' = 'shirts',
+  'pants' = 'pants',
+  'hoodies' = 'hoodies',
+  'hats' = 'hats',
+}
 
-export type ValidGender = 'men' | 'women' | 'kid' | 'unisex';
+export enum ValidGender {
+  'men' = 'men',
+  'women' = 'women',
+  'kid' = 'kid',
+  'unisex' = 'unisex',
+}

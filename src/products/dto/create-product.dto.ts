@@ -46,17 +46,18 @@ export class CreateProductDto {
   stock?: number;
 
   @ApiProperty({ description: 'description is optional' })
-  @IsString({ each: true })
   @IsArray()
-  sizes: ValidSizes[];
+  @IsString({ each: true })
+  @IsIn(Object.values(ValidSizes), { each: true })
+  sizes: string[];
 
   @ApiProperty({ description: 'select one [shirts, pants, hoodies, hats]' })
-  @IsIn(['shirts', 'pants', 'hoodies', 'hats'])
-  type: ValidTypes;
+  @IsIn(Object.values(ValidTypes))
+  type: string;
 
   @ApiProperty({ description: 'select one [men, women, kid, unisex]' })
-  @IsIn(['men', 'women', 'kid', 'unisex'])
-  gender: ValidGender;
+  @IsIn(Object.values(ValidGender))
+  gender: string;
 
   @ApiProperty({ description: 'tags is optional', required: false })
   @IsOptional()

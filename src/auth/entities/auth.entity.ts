@@ -39,9 +39,10 @@ export class User {
   isActive: boolean;
 
   @ApiProperty()
-  @Column('text', {
+  @Column('enum', {
+    enum: ValidRoles,
     array: true,
-    default: [ValidRoles.user],
+    default: [ValidRoles['user']],
   })
   roles: string[];
 

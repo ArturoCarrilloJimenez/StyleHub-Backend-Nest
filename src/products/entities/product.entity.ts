@@ -10,6 +10,7 @@ import {
 import { ProductImage } from './product.image.entity';
 import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { ValidGender, ValidTypes } from '../interfaces/product.interface';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -55,11 +56,17 @@ export class Product {
   sizes: string[];
 
   @ApiProperty()
-  @Column('text')
+  @Column('enum', {
+    enum: ValidTypes,
+    default: ValidTypes['shirts'],
+  })
   type: string;
 
   @ApiProperty()
-  @Column('text')
+  @Column('enum', {
+    enum: ValidGender,
+    default: ValidGender['unisex'],
+  })
   gender: string;
 
   @ApiProperty({ required: false, default: [] })
