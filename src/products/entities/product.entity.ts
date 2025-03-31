@@ -4,13 +4,15 @@ import {
   Column,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ProductImage } from './product.image.entity';
 import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { ValidGender, ValidTypes } from '../interfaces/product.interface';
+import {
+  ValidGender,
+  ValidSizes,
+  ValidTypes,
+} from '../interfaces/product.interface';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -50,8 +52,10 @@ export class Product {
   stock: number;
 
   @ApiProperty()
-  @Column('text', {
+  @Column('enum', {
+    enum: ValidSizes,
     array: true,
+    default: [],
   })
   sizes: string[];
 
@@ -77,11 +81,11 @@ export class Product {
   tags: string[];
 
   @ApiProperty()
-  @OneToMany(() => ProductImage, (images) => images.product, {
-    cascade: true,
-    eager: true,
+  @Column('text', {
+    array: true,
+    default: [],
   })
-  images: ProductImage[];
+  images: string[];
 
   @ManyToOne(() => User, (user) => user.products)
   user: User;

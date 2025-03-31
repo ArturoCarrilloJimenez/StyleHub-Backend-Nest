@@ -8,7 +8,6 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
-import { ProductImage } from './entities/product.image.entity';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { User } from 'src/auth/entities/auth.entity';
 
@@ -20,21 +19,15 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
-    @InjectRepository(ProductImage)
-    private readonly productImageRepository: Repository<ProductImage>,
-
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto, user: User) {
-    const { images = [], ...productDetail } = createProductDto;
+    const { ...productDetail } = createProductDto;
 
     try {
       const product = this.productRepository.create({
         ...productDetail,
-        images: images.map((imageUrl) =>
-          this.productImageRepository.create({ url: imageUrl }),
-        ),
         user,
       });
       await this.productRepository.save(product);
@@ -51,14 +44,11 @@ export class ProductsService {
     const products = await this.productRepository.find({
       take: limit,
       skip: offset,
-      relations: {
-        images: true,
-      },
+      relations: {},
     });
 
     return products.map((product) => ({
       ...product,
-      images: product.images.map((images) => images.url),
     }));
   }
 
@@ -87,15 +77,14 @@ export class ProductsService {
   }
 
   async findOnePlain(term: string) {
-    const { images = [], ...rest } = await this.findOne(term);
+    const { ...rest } = await this.findOne(term);
     return {
       ...rest,
-      images: images.map((image) => image.url),
     };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    const { images, ...toUpdate } = updateProductDto;
+    const { ...toUpdate } = updateProductDto;
 
     const product = await this.productRepository.preload({
       id: id,
@@ -110,14 +99,6 @@ export class ProductsService {
     await queryRunner.startTransaction();
 
     try {
-      if (images) {
-        await queryRunner.manager.delete(ProductImage, { product: { id } });
-
-        product.images = images.map((image) =>
-          this.productImageRepository.create({ url: image }),
-        );
-      }
-
       await this.productRepository.save(product);
 
       await queryRunner.commitTransaction();

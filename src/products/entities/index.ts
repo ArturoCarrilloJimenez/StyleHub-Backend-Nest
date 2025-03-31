@@ -1,2 +1,2 @@
 export { Product } from './product.entity';
-export { ProductImage } from './product.image.entity';
+export { ProductType } from './product-type.entity';
