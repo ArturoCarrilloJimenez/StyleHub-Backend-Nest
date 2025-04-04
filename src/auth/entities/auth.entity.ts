@@ -2,9 +2,11 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ValidRoles } from '../interfaces';
 import { Product } from 'src/products/entities';
@@ -48,6 +50,14 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.user)
   products: Product[];
+
+  @ApiProperty()
+  @CreateDateColumn()
+  insertDate: Date;
+
+  @ApiProperty()
+  @UpdateDateColumn()
+  updateDate: Date;
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {

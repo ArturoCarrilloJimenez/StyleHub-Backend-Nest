@@ -2,17 +2,18 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ValidGender,
-  ValidSizes,
-  ValidTypes,
-} from '../interfaces/product.interface';
+import { ValidGender, ValidSizes } from '../interfaces/product.interface';
+import { ProductType } from './product-type.entity';
+import { ProductTags } from './product-tags.entity';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -61,24 +62,10 @@ export class Product {
 
   @ApiProperty()
   @Column('enum', {
-    enum: ValidTypes,
-    default: ValidTypes['shirts'],
-  })
-  type: string;
-
-  @ApiProperty()
-  @Column('enum', {
     enum: ValidGender,
     default: ValidGender['unisex'],
   })
   gender: string;
-
-  @ApiProperty({ required: false, default: [] })
-  @Column('text', {
-    array: true,
-    default: [],
-  })
-  tags: string[];
 
   @ApiProperty()
   @Column('text', {
@@ -90,7 +77,23 @@ export class Product {
   @ManyToOne(() => User, (user) => user.products)
   user: User;
 
-  @BeforeInsert() // Método para realizar acciones después de la inserción
+  @ApiProperty()
+  @ManyToOne(() => ProductType, (type) => type.product)
+  type: ProductType;
+
+  @ApiProperty({ required: false, default: [] })
+  @ManyToMany(() => ProductTags, (product) => product.product)
+  tags: ProductTags[];
+
+  @ApiProperty()
+  @CreateDateColumn()
+  insertDate: Date;
+
+  @ApiProperty()
+  @UpdateDateColumn()
+  updateDate: Date;
+
+  @BeforeInsert()
   checkSlugInsert() {
     if (!this.slug) {
       this.slug = this.title;

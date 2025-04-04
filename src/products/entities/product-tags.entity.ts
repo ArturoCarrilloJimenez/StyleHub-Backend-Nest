@@ -1,10 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ProductType } from './product-type.entity';
+import { Product } from '.';
 
-// TODO vincular tag product
-// TODO vincular tags type
 @Entity({ name: 'product-tags' })
-export class ProductType {
+export class ProductTags {
   @ApiProperty({ required: false })
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -14,4 +20,10 @@ export class ProductType {
     unique: true,
   })
   name: string;
+
+  @ManyToOne(() => ProductType, (type) => type.tags)
+  type: ProductType;
+
+  @ManyToMany(() => Product, (product) => product.tags)
+  product: Product[];
 }

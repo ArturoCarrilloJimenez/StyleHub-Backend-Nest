@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ProductTags } from './product-tags.entity';
+import { Product } from '.';
 
-// TODO vincular typo product
 @Entity({ name: 'product-type' })
 export class ProductType {
   @ApiProperty({ required: false })
@@ -13,4 +14,10 @@ export class ProductType {
     unique: true,
   })
   name: string;
+
+  @OneToMany(() => ProductTags, (tags) => tags.type)
+  tags: ProductTags[];
+
+  @OneToMany(() => Product, (product) => product.type)
+  product: Product[];
 }

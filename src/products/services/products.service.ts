@@ -3,13 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { DataSource, Repository } from 'typeorm';
 
-import { Product } from './entities/product.entity';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
-import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
+
+import { ProductType, Product, ProductTags } from '../entities';
 import { User } from 'src/auth/entities/auth.entity';
+import { CreateProductDto, UpdateProductDto } from '../dto';
+import { PaginateDto } from 'src/commons/dtos/pagination.dto';
+
+import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 
 @Injectable()
 export class ProductsService {
@@ -19,11 +20,18 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
+    @InjectRepository(ProductType)
+    private readonly productTypeRepository: Repository<ProductType>,
+
+    @InjectRepository(ProductTags)
+    private readonly productTagsRepository: Repository<ProductTags>,
+
     private readonly dataSource: DataSource,
   ) {}
 
+  // TODO Validar que exista el tags y el typo y si existe añadirlo
   async create(createProductDto: CreateProductDto, user: User) {
-    const { ...productDetail } = createProductDto;
+    const { type, tags = [], ...productDetail } = createProductDto;
 
     try {
       const product = this.productRepository.create({
@@ -39,7 +47,7 @@ export class ProductsService {
   }
 
   async findAll(paginateDto: PaginateDto) {
-    const { limit = 10, offset = 0 } = paginateDto;
+    const { limit = 12, offset = 0 } = paginateDto;
 
     const products = await this.productRepository.find({
       take: limit,
@@ -84,7 +92,7 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    const { ...toUpdate } = updateProductDto;
+    const { type, tags = [], ...toUpdate } = updateProductDto;
 
     const product = await this.productRepository.preload({
       id: id,
