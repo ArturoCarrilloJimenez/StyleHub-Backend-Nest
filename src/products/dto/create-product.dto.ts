@@ -8,11 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  ValidGender,
-  ValidSizes,
-  ValidTypes,
-} from '../interfaces/product.interface';
+import { ValidGender, ValidSizes } from '../interfaces/product.interface';
 
 export class CreateProductDto {
   @ApiProperty({ description: 'title is uniq value' })
@@ -51,8 +47,8 @@ export class CreateProductDto {
   @IsIn(Object.values(ValidSizes), { each: true })
   sizes: string[];
 
-  @ApiProperty({ description: 'select one [shirts, pants, hoodies, hats]' })
-  @IsIn(Object.values(ValidTypes))
+  @ApiProperty()
+  @IsString()
   type: string;
 
   @ApiProperty({ description: 'select one [men, women, kid, unisex]' })

@@ -5,13 +5,13 @@ import { DataSource, Repository } from 'typeorm';
 
 import { validate as isUUID } from 'uuid';
 
-import { Product, ProductTags } from './entities';
+import { Product } from './entities';
 import { User } from 'src/auth/entities/auth.entity';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
-import { ProductType } from './type/entities';
+import { ProductTypeService } from './type/product-type.service';
 
 @Injectable()
 export class ProductsService {
@@ -21,11 +21,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
 
-    @InjectRepository(ProductType)
-    private readonly productTypeRepository: Repository<ProductType>,
-
-    @InjectRepository(ProductTags)
-    private readonly productTagsRepository: Repository<ProductTags>,
+    private readonly productTypeService: ProductTypeService,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -34,10 +30,13 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto, user: User) {
     const { type, tags = [], ...productDetail } = createProductDto;
 
+    const findType = await this.productTypeService.findOne(type);
+
     try {
       const product = this.productRepository.create({
         ...productDetail,
         user,
+        type: findType,
       });
       await this.productRepository.save(product);
 
@@ -94,9 +93,12 @@ export class ProductsService {
   async update(id: string, updateProductDto: UpdateProductDto) {
     const { type, tags = [], ...toUpdate } = updateProductDto;
 
+    const findType = await this.productTypeService.findOne(type);
+
     const product = await this.productRepository.preload({
       id: id,
       ...toUpdate,
+      type: findType,
     });
 
     if (!product)
@@ -119,6 +121,7 @@ export class ProductsService {
     }
   }
 
+  // TODO realizar borrado lógico
   async remove(id: string) {
     const product: Product | undefined = await this.findOne(id);
 

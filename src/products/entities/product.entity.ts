@@ -74,6 +74,10 @@ export class Product {
   })
   images: string[];
 
+  @ApiProperty()
+  @Column('boolean', { default: true })
+  isActive: boolean;
+
   @ManyToOne(() => User, (user) => user.products)
   user: User;
 
