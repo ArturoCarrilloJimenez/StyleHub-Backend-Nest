@@ -12,7 +12,7 @@ import {
 import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ValidGender, ValidSizes } from '../interfaces/product.interface';
-import { ProductType } from './product-type.entity';
+import { ProductType } from '../type/entities/product-type.entity';
 import { ProductTags } from './product-tags.entity';
 
 @Entity({ name: 'product' })

@@ -5,12 +5,13 @@ import { DataSource, Repository } from 'typeorm';
 
 import { validate as isUUID } from 'uuid';
 
-import { ProductType, Product, ProductTags } from '../entities';
+import { Product, ProductTags } from './entities';
 import { User } from 'src/auth/entities/auth.entity';
-import { CreateProductDto, UpdateProductDto } from '../dto';
+import { CreateProductDto, UpdateProductDto } from './dto';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
+import { ProductType } from './type/entities';
 
 @Injectable()
 export class ProductsService {
@@ -75,7 +76,6 @@ export class ProductsService {
           title: term,
           slug: term,
         })
-        .leftJoinAndSelect('product.images', 'productImages')
         .getOne();
     }
 

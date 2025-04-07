@@ -7,6 +7,6 @@ import { AuthGuard } from '@nestjs/passport';
 export const Auth = (...args: ValidRoles[]) => {
   return applyDecorators(
     RoleProtected(...args),
-    UseGuards(AuthGuard(), UserRoleGuard),
+    UseGuards(AuthGuard('jwt'), UserRoleGuard),
   );
 };

@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 
-import { ProductsService } from './services/products.service';
+import { ProductsService } from './products.service';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { CreateProductDto, UpdateProductDto } from './dto/';
 import { Auth, GetUser } from 'src/auth/decorators';

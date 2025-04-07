@@ -9,7 +9,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
 
-@Injectable()
+@Injectable() // TODO realizar borrado lógico
 export class AuthService {
   private readonly logger = new Logger('AuthService');
 

@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ProductType } from './product-type.entity';
+import { ProductType } from '../type/entities/product-type.entity';
 import { Product } from '.';
 
 @Entity({ name: 'product-tags' })

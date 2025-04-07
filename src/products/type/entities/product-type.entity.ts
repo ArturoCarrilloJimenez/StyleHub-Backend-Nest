@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ProductTags } from './product-tags.entity';
-import { Product } from '.';
+
+import { ProductTags } from '../../entities/product-tags.entity';
+import { Product } from '../../entities';
 
 @Entity({ name: 'product-type' })
 export class ProductType {

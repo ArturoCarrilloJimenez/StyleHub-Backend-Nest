@@ -7,6 +7,8 @@ import { ProductsModule } from './products/products.module';
 import { SeedModule } from './seed/seed.module';
 import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
+import { ProductType } from './products/type/entities';
+import { ProductTypeModule } from './products/type/product-type.module';
 
 @Module({
   imports: [
@@ -23,17 +25,19 @@ import { AuthModule } from './auth/auth.module';
         rejectUnauthorized: false, // Clever Cloud suele requerir SSL
       },
       // Exporto con una expresión los entities para ahorrarme el tiempo de configurar uno a uno a mano
-      entities: [__dirname + '/**/entities/*.entity{.ts,.js}'],
+      entities: [__dirname + '/**/entities/*.entity{.ts,.js}', ProductType],
       synchronize: true,
     }),
+
+    ProductTypeModule,
 
     ProductsModule,
 
     SeedModule,
 
-    FilesModule,
-
     AuthModule,
+
+    FilesModule,
   ],
   controllers: [],
   providers: [],
