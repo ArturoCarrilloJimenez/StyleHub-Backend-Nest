@@ -91,7 +91,7 @@ export class ProductTypeService {
     return type;
   }
 
-  async deleteAllProducts() {
+  async removeAllProductTypes() {
     const query = this.productTypeRepository.createQueryBuilder();
 
     try {

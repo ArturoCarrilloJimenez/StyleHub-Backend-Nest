@@ -93,12 +93,10 @@ export class ProductsService {
   async update(id: string, updateProductDto: UpdateProductDto) {
     const { type, tags = [], ...toUpdate } = updateProductDto;
 
-    const findType = await this.productTypeService.findOne(type);
 
     const product = await this.productRepository.preload({
       id: id,
       ...toUpdate,
-      type: findType,
     });
 
     if (!product)
