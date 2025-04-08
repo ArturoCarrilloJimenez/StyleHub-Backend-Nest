@@ -62,6 +62,11 @@ export class AuthService {
     if (!this.encryptData.isValidate(password, user.password))
       throw new UnauthorizedException('Credential are not valid (password)');
 
+    if (!user.isActive)
+      throw new UnauthorizedException(
+        'User is inactive, send email whit admin',
+      );
+
     return { user, token: this.getJwtToken({ id: user.id }) };
   }
 

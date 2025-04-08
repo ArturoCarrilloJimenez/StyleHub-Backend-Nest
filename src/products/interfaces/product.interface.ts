@@ -8,13 +8,6 @@ export enum ValidSizes {
   'XXXL' = 'XXXL',
 }
 
-export enum ValidTypes {
-  'shirts' = 'shirts',
-  'pants' = 'pants',
-  'hoodies' = 'hoodies',
-  'hats' = 'hats',
-}
-
 export enum ValidGender {
   'men' = 'men',
   'women' = 'women',

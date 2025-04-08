@@ -55,12 +55,6 @@ export class CreateProductDto {
   @IsIn(Object.values(ValidGender))
   gender: string;
 
-  @ApiProperty({ description: 'tags is optional', required: false })
-  @IsOptional()
-  @IsString({ each: true })
-  @IsArray()
-  tags?: string[];
-
   @ApiProperty({ description: 'images is optional', required: false })
   @IsString({ each: true })
   @IsOptional()

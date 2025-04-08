@@ -12,6 +12,7 @@ import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { ProductTypeService } from './type/product-type.service';
+import { ProductType } from './type/entities';
 
 @Injectable()
 export class ProductsService {
@@ -28,7 +29,7 @@ export class ProductsService {
 
   // TODO Validar que exista el tags y el typo y si existe añadirlo
   async create(createProductDto: CreateProductDto, user: User) {
-    const { type, tags = [], ...productDetail } = createProductDto;
+    const { type, ...productDetail } = createProductDto;
 
     const findType = await this.productTypeService.findOne(type);
 
@@ -46,21 +47,27 @@ export class ProductsService {
     }
   }
 
-  async findAll(paginateDto: PaginateDto) {
+  async findAll(paginateDto: PaginateDto, isActiveProducts: boolean = true) {
     const { limit = 12, offset = 0 } = paginateDto;
+
+    const whereCondition = isActiveProducts ? { isActive: true } : {};
 
     const products = await this.productRepository.find({
       take: limit,
       skip: offset,
-      relations: {},
+      relations: {
+        type: true,
+      },
+      where: whereCondition,
     });
 
     return products.map((product) => ({
       ...product,
+      type: product.type.name,
     }));
   }
 
-  async findOne(term: string) {
+  async findOne(term: string, isActiveProduct: boolean = true) {
     let product: Product | null;
 
     if (isUUID(term)) {
@@ -75,59 +82,65 @@ export class ProductsService {
           title: term,
           slug: term,
         })
+        .leftJoinAndSelect('product.type', 'prodType')
         .getOne();
     }
 
-    if (!product) throw new NotFoundException('This product not found');
+    if (!product || (isActiveProduct == true && product.isActive != true))
+      throw new NotFoundException('This product not found');
 
     return product;
   }
 
   async findOnePlain(term: string) {
-    const { ...rest } = await this.findOne(term);
+    const { type, ...rest } = await this.findOne(term);
     return {
       ...rest,
+      type: type.name,
     };
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    const { type, tags = [], ...toUpdate } = updateProductDto;
+    const { type, ...toUpdate } = updateProductDto;
+    let findType: ProductType | undefined;
 
+    if (type) findType = await this.productTypeService.findOne(type);
 
     const product = await this.productRepository.preload({
       id: id,
       ...toUpdate,
+      type: findType,
     });
 
     if (!product)
       throw new NotFoundException(`Product whit id ${id} not found`);
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
       await this.productRepository.save(product);
 
-      await queryRunner.commitTransaction();
-
       return this.findOnePlain(id);
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-
       handleExceptions(error, this.logger);
     }
   }
 
-  // TODO realizar borrado lógico
   async remove(id: string) {
     const product: Product | undefined = await this.findOne(id);
 
-    if (!product) return;
+    const deleteProduct = await this.productRepository.preload({
+      ...product,
+      isActive: false,
+    });
 
-    await this.productRepository.remove(product);
+    if (!deleteProduct) return;
 
-    return product;
+    try {
+      await this.productRepository.save(deleteProduct);
+    } catch (error) {
+      handleExceptions(error, this.logger);
+    }
+
+    return deleteProduct;
   }
 
   async deleteAllProducts() {

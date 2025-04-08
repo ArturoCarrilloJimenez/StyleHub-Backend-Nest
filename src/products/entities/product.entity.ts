@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -13,7 +12,6 @@ import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ValidGender, ValidSizes } from '../interfaces/product.interface';
 import { ProductType } from '../type/entities/product-type.entity';
-import { ProductTags } from './product-tags.entity';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -82,12 +80,10 @@ export class Product {
   user: User;
 
   @ApiProperty()
-  @ManyToOne(() => ProductType, (type) => type.product)
+  @ManyToOne(() => ProductType, (type) => type.product, {
+    eager: true,
+  })
   type: ProductType;
-
-  @ApiProperty({ required: false, default: [] })
-  @ManyToMany(() => ProductTags, (product) => product.product)
-  tags: ProductTags[];
 
   @ApiProperty()
   @CreateDateColumn()
