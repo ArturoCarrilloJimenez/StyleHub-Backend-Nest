@@ -3,7 +3,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Product } from '../../entities';
 
-@Entity({ name: 'product-type' })
+@Entity({ name: 'product_type' })
 export class ProductType {
   @ApiProperty({ required: false })
   @PrimaryGeneratedColumn('uuid')

@@ -9,6 +9,7 @@ import { FilesModule } from './files/files.module';
 import { AuthModule } from './auth/auth.module';
 import { ProductType } from './products/type/entities';
 import { ProductTypeModule } from './products/type/product-type.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -38,6 +39,8 @@ import { ProductTypeModule } from './products/type/product-type.module';
     AuthModule,
 
     FilesModule,
+
+    CartModule,
   ],
   controllers: [],
   providers: [],

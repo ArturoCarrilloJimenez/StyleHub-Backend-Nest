@@ -49,7 +49,7 @@ export class User {
   roles: string[];
 
   @OneToMany(() => Product, (product) => product.user)
-  products: Product[];
+  productsInsert: Product[];
 
   @ApiProperty()
   @CreateDateColumn()

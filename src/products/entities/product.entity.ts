@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -12,6 +13,7 @@ import { User } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ValidGender, ValidSizes } from '../interfaces/product.interface';
 import { ProductType } from '../type/entities/product-type.entity';
+import { CartProduct } from 'src/cart/entities/cart-product.entity';
 
 @Entity({ name: 'product' })
 export class Product {
@@ -76,7 +78,7 @@ export class Product {
   @Column('boolean', { default: true })
   isActive: boolean;
 
-  @ManyToOne(() => User, (user) => user.products)
+  @ManyToOne(() => User, (user) => user.productsInsert)
   user: User;
 
   @ApiProperty()
@@ -84,6 +86,9 @@ export class Product {
     eager: true,
   })
   type: ProductType;
+
+  @OneToMany(() => CartProduct, (cart) => cart.product)
+  cartProduct: CartProduct[];
 
   @ApiProperty()
   @CreateDateColumn()

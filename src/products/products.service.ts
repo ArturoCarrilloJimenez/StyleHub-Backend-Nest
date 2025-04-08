@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { validate as isUUID } from 'uuid';
 
@@ -23,8 +23,6 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
 
     private readonly productTypeService: ProductTypeService,
-
-    private readonly dataSource: DataSource,
   ) {}
 
   // TODO Validar que exista el tags y el typo y si existe añadirlo
