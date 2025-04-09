@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Build Docker image with Spring Boot plugin
+      - name: Build Docker image with Nestjs plugin
         run: |
           docker build -t ${{ secrets.IMAGE_NAME }} .
 
