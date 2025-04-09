@@ -64,20 +64,3 @@ jobs:
           CI: true
         run: |
           render deploys create ${{ secrets.RENDER_SERVICE_ID }} --output json --confirm
-
-  Revert-Change:
-    runs-on: ubuntu-latest
-    needs: [ Build, Deploy-Render ]  # we need to say the job that sometimes fails is a dependency
-    if: ${{ failure() }}      # because if it fails
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2  # check out the current and prior state
-      - name: "Revert the commit that triggered this run, then push it to master"
-        shell: bash
-        run: |
-          echo "Reverting ${{ github.sha }}"
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git revert --no-edit ${{ github.sha }}
-          git push origin master
