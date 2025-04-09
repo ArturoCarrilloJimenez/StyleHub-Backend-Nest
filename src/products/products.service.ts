@@ -25,7 +25,6 @@ export class ProductsService {
     private readonly productTypeService: ProductTypeService,
   ) {}
 
-  // TODO Validar que exista el tags y el typo y si existe añadirlo
   async create(createProductDto: CreateProductDto, user: User) {
     const { type, ...productDetail } = createProductDto;
 
