@@ -22,10 +22,11 @@ export class Cart {
   user: User;
 
   @OneToMany(() => CartProduct, (cart) => cart.cart, {
-    onDelete: 'CASCADE',
+    cascade: true,
+    orphanedRowAction: 'delete',
     eager: true,
   })
-  cartProduct: CartProduct[];
+  products: CartProduct[];
 
   @ApiProperty()
   @CreateDateColumn()

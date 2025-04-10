@@ -16,7 +16,9 @@ export class CartProduct {
   product: Product;
 
   @ApiProperty()
-  @ManyToOne(() => Cart, (cart) => cart.cartProduct)
+  @ManyToOne(() => Cart, (cart) => cart.products, {
+    onDelete: 'CASCADE',
+  })
   cart: Cart;
 
   @ApiProperty()
