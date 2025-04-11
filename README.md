@@ -4,40 +4,39 @@
 
 ## Description
 
-Esta es una __Api Rest__ para un e-comerce de una tienda de moda, esta esta hecha en __NestJs__ y este cuenta con gran cantidad de endpoint
+This is a __Rest API__ for a fashion store's e-commerce site. It's built in __NestJs__ and has a large number of endpoints.
 
 > [!TIP]
-> Para ver los endpoint de esta api abre la url que he adjuntado en el repositorio
+> To see the endpoints for this API, open the URL you attached to the repository.
 
-## Project setup
+## Project Configuration
 
 > [!IMPORTANT]
-> Copia el ``.env.template`` y añádelos como ``.env``, aquí completa las variables con tus propios datos
+> Copy the ``.env.template`` and add it as ``.env``. Fill in the variables here with your own data.
 
-```bash
-$ npm install
+```
+tap
+install $ npm
 ```
 
-## Compile and run the project
+## Compile and run the project.
 
-```bash
+```tap
 # development
-$ npm run start
+$ npm runtime
 
 # watch mode
-$ npm run start:dev
+$ npm runtime: dev
 
 # production mode
-$ npm run start:prod
+$ npm runtime: prod
 ```
 
-## Execute SEED
+## Run SEED
 
-Este proyecto cuenta con un Seed, este vuelca distintos productos de prueba, para ver la ruta accede a la documentación de Swagger
+This project has a Seed, which dumps various test products. To see the path, access the Swagger documentation.
 
+## Stay in touch ✒️
 
-## Stay in touch
-
-- Author - Arturo Carrillo Jimenez
-- Website - [https://sylehub-back.onrender.com/api](https://sylehub-back.onrender.com/api)
-
+- Author: Arturo Carrillo Jiménez
+- Website: [https://sylehub-back.onrender.com/api](https://sylehub-back.onrender.com/api)
