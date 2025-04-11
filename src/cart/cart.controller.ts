@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/auth.entity';
@@ -14,7 +14,7 @@ export class CartController {
     return this.cartService.findOneCart(user);
   }
 
-  @Post()
+  @Patch()
   @Auth()
   addProduct(@GetUser() user: User, @Body() cartProduct: UpdateCartProductDto) {
     return this.cartService.updateProduct(cartProduct, user);

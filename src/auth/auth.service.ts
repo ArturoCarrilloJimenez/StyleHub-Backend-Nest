@@ -9,7 +9,10 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
 
-@Injectable() // TODO realizar borrado lógico
+// TODO realizar borrado lógico
+// TODO realizar comprobación de que el email ya existe
+// TODO realizar recuperar contraseña
+@Injectable()
 export class AuthService {
   private readonly logger = new Logger('AuthService');
 

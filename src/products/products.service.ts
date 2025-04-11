@@ -13,6 +13,7 @@ import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { ProductTypeService } from './type/product-type.service';
 import { ProductType } from './type/entities';
+import { paginateResponse } from 'src/commons/utils/paginate-response.utils';
 
 @Injectable()
 export class ProductsService {
@@ -45,23 +46,21 @@ export class ProductsService {
   }
 
   async findAll(paginateDto: PaginateDto, isActiveProducts: boolean = true) {
-    const { limit = 12, offset = 0 } = paginateDto;
+    const { limit = 12, page = 0 } = paginateDto;
+    const skip = (page - 1) * limit;
 
     const whereCondition = isActiveProducts ? { isActive: true } : {};
 
-    const products = await this.productRepository.find({
+    const data = await this.productRepository.findAndCount({
       take: limit,
-      skip: offset,
+      skip: skip,
       relations: {
         type: true,
       },
       where: whereCondition,
     });
 
-    return products.map((product) => ({
-      ...product,
-      type: product.type.name,
-    }));
+    return paginateResponse(data, page, limit);
   }
 
   async findOne(term: string, isActiveProduct: boolean = true) {
