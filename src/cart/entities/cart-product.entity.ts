@@ -1,9 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Product } from 'src/products/entities';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'cart_product' })
+@Index('cart_product_unique', ['cart', 'product'], { unique: true })
 export class CartProduct {
   @ApiProperty({ required: false })
   @PrimaryGeneratedColumn('uuid')
