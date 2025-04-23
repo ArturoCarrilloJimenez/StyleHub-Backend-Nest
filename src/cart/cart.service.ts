@@ -65,22 +65,25 @@ export class CartService {
   }
 
   async updateProduct(updateCartProduct: UpdateCartProductDto, user: User) {
-    const { quantity = 1, product } = updateCartProduct;
+    const { quantity, product } = updateCartProduct;
+
+    const userSendQuantity = !!quantity;
+    const quantityValue = quantity ?? 1;
 
     const cart = await this.findOneCart(user);
 
     const cartProduct = await this.findCartProduct(product, cart);
 
-    if (quantity <= 0) return this.removeProduct(product, user);
+    if (quantityValue <= 0) return this.removeProduct(product, user);
 
     if (!cartProduct) {
       const findProduct = await this.productService.findOne(product);
 
-      await this.createCartProduct(cart, findProduct, quantity);
+      await this.createCartProduct(cart, findProduct, quantityValue);
     } else {
       const updateCartProduct = await this.cartProductRepository.preload({
         id: cartProduct.id,
-        quantity: quantity,
+        quantity: userSendQuantity ? quantity : cartProduct.quantity + 1,
       });
 
       if (!updateCartProduct)
