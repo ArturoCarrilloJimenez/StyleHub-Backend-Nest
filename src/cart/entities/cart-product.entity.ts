@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Cart } from 'src/cart/entities/cart.entity';
 import { Product } from 'src/products/entities';
+import { ValidSizes } from 'src/products/interfaces/product.interface';
 import {
   Column,
   Entity,
@@ -33,4 +34,10 @@ export class CartProduct {
     default: 1,
   })
   quantity: number;
+
+  @ApiProperty()
+  @Column('enum', {
+    enum: ValidSizes,
+  })
+  size: string;
 }

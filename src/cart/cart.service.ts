@@ -65,7 +65,7 @@ export class CartService {
   }
 
   async updateProduct(updateCartProduct: UpdateCartProductDto, user: User) {
-    const { quantity, product } = updateCartProduct;
+    const { quantity, product, size } = updateCartProduct;
 
     const userSendQuantity = !!quantity;
     const quantityValue = quantity ?? 1;
@@ -79,11 +79,14 @@ export class CartService {
     if (!cartProduct) {
       const findProduct = await this.productService.findOne(product);
 
-      await this.createCartProduct(cart, findProduct, quantityValue);
+      const validSize = !size ? findProduct.sizes[0] : size;
+
+      await this.createCartProduct(cart, findProduct, validSize, quantityValue);
     } else {
       const updateCartProduct = await this.cartProductRepository.preload({
         id: cartProduct.id,
         quantity: userSendQuantity ? quantity : cartProduct.quantity + 1,
+        size,
       });
 
       if (!updateCartProduct)
@@ -131,6 +134,7 @@ export class CartService {
   private async createCartProduct(
     cart: Cart,
     product: Product,
+    size: string,
     quantity: number,
   ) {
     if (quantity <= 0)
@@ -140,6 +144,7 @@ export class CartService {
       cart,
       product,
       quantity,
+      size,
     });
 
     try {

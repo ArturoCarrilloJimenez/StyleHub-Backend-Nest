@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { ValidSizes } from 'src/products/interfaces/product.interface';
 
 export class UpdateCartProductDto {
   @ApiProperty()
@@ -11,4 +18,10 @@ export class UpdateCartProductDto {
   @IsOptional()
   @IsNumber()
   quantity?: number;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  @IsEnum(ValidSizes)
+  size?: string;
 }
