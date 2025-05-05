@@ -7,13 +7,11 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
-  Query,
 } from '@nestjs/common';
 import { ProductTypeService } from './product-type.service';
 import { ApiResponse } from '@nestjs/swagger';
 import { CreateProductTypeDto, UpdateProductTypeDto } from './dto';
 import { ProductType } from './entities';
-import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 
@@ -38,8 +36,8 @@ export class ProductTypeController {
     type: [ProductType],
     description: 'Product type was correct',
   })
-  findAll(@Query() paginateDto: PaginateDto) {
-    return this.productTypeService.findAll(paginateDto);
+  findAll() {
+    return this.productTypeService.findAll();
   }
 
   @Get(':term')

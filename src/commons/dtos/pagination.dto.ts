@@ -14,5 +14,5 @@ export class PaginateDto {
   @IsOptional()
   @IsPositive()
   @Type(() => Number)
-  page?: number;
+  page?: number = 1;
 }

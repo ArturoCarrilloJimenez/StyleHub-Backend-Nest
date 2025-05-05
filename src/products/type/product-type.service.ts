@@ -3,7 +3,6 @@ import { ProductType } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductTypeDto, UpdateProductTypeDto } from './dto';
-import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { isUUID } from 'class-validator';
 
@@ -27,14 +26,8 @@ export class ProductTypeService {
     }
   }
 
-  async findAll(paginateDto: PaginateDto) {
-    const { limit = 12, page: offset = 0 } = paginateDto;
-
-    const types = await this.productTypeRepository.find({
-      take: limit,
-      skip: offset,
-      relations: {},
-    });
+  async findAll() {
+    const types = await this.productTypeRepository.find();
 
     return types.map((types) => ({
       ...types,
