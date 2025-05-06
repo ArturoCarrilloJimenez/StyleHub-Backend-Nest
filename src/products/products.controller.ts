@@ -12,12 +12,15 @@ import {
 import { ApiResponse } from '@nestjs/swagger';
 
 import { ProductsService } from './products.service';
-import { CreateProductDto, UpdateProductDto } from './dto/';
+import {
+  CreateProductDto,
+  PaginateProductsDto,
+  UpdateProductDto,
+} from './dto/';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { User } from 'src/auth/entities/auth.entity';
 import { Product } from './entities';
-import { QueryGetAllProduct } from './dto/get-all-product-query.dto';
 
 // TODO añadir método con like por nombre de producto entre otras cosas, esto se usara en un futuro para un búsqueda
 // TODO añadir métodos para filtrar productos por el type, gender...
@@ -42,8 +45,9 @@ export class ProductsController {
     type: [Product],
     description: 'Product was correct',
   })
-  findAll(@Query() queryProduct: QueryGetAllProduct) {
-    const { activeProducts, ...paginateDto } = queryProduct;
+  findAll(@Query() query: PaginateProductsDto) {
+    const { activeProducts, ...paginateDto } = query;
+
     return this.productsService.findAll(paginateDto, activeProducts);
   }
 
@@ -78,10 +82,20 @@ export class ProductsController {
   @ApiResponse({
     status: 200,
     type: Product,
-    description: 'Product delete',
   })
   @ApiResponse({ status: 404, description: 'Not found' })
   remove(@Param('term', ParseUUIDPipe) term: string) {
-    return this.productsService.remove(term);
+    return this.productsService.activeProduct(term, false);
+  }
+
+  @Get(':term/active')
+  @Auth(ValidRoles.admin)
+  @ApiResponse({
+    status: 200,
+    type: Product,
+  })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  active(@Param('term', ParseUUIDPipe) term: string) {
+    return this.productsService.activeProduct(term, true);
   }
 }

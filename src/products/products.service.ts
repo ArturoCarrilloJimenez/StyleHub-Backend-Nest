@@ -45,11 +45,11 @@ export class ProductsService {
     }
   }
 
-  async findAll(paginateDto: PaginateDto, isActiveProducts: boolean = true) {
+  async findAll(paginateDto: PaginateDto, isActiveProducts: number = 1) {
     const { limit = 12, page = 0 } = paginateDto;
     const skip = (page - 1) * limit;
 
-    const whereCondition = isActiveProducts ? { isActive: true } : {};
+    const whereCondition = isActiveProducts !== 0 ? { isActive: true } : {};
 
     const data = await this.productRepository.findAndCount({
       take: limit,
@@ -63,7 +63,7 @@ export class ProductsService {
     return paginateResponse(data, page, limit);
   }
 
-  async findOne(term: string, isActiveProduct: boolean = true) {
+  async findOne(term: string) {
     let product: Product | null;
 
     if (isUUID(term)) {
@@ -82,8 +82,7 @@ export class ProductsService {
         .getOne();
     }
 
-    if (!product || (isActiveProduct == true && product.isActive != true))
-      throw new NotFoundException('This product not found');
+    if (!product) throw new NotFoundException('This product not found');
 
     return product;
   }
@@ -120,23 +119,23 @@ export class ProductsService {
     }
   }
 
-  async remove(id: string) {
+  async activeProduct(id: string, isActive: boolean = true) {
     const product: Product | undefined = await this.findOne(id);
 
-    const deleteProduct = await this.productRepository.preload({
+    const activeProduct = await this.productRepository.preload({
       ...product,
-      isActive: false,
+      isActive,
     });
 
-    if (!deleteProduct) return;
+    if (!activeProduct) return;
 
     try {
-      await this.productRepository.save(deleteProduct);
+      await this.productRepository.save(activeProduct);
     } catch (error) {
       handleExceptions(error, this.logger);
     }
 
-    return deleteProduct;
+    return activeProduct;
   }
 
   async deleteAllProducts() {
