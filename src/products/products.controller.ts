@@ -12,12 +12,12 @@ import {
 import { ApiResponse } from '@nestjs/swagger';
 
 import { ProductsService } from './products.service';
-import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 import { CreateProductDto, UpdateProductDto } from './dto/';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { User } from 'src/auth/entities/auth.entity';
 import { Product } from './entities';
+import { QueryGetAllProduct } from './dto/get-all-product-query.dto';
 
 // TODO añadir método con like por nombre de producto entre otras cosas, esto se usara en un futuro para un búsqueda
 // TODO añadir métodos para filtrar productos por el type, gender...
@@ -42,8 +42,9 @@ export class ProductsController {
     type: [Product],
     description: 'Product was correct',
   })
-  findAll(@Query() paginateDto: PaginateDto) {
-    return this.productsService.findAll(paginateDto);
+  findAll(@Query() queryProduct: QueryGetAllProduct) {
+    const { activeProducts, ...paginateDto } = queryProduct;
+    return this.productsService.findAll(paginateDto, activeProducts);
   }
 
   @Get(':term')
