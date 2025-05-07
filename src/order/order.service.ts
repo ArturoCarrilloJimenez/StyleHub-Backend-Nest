@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { Transactional } from 'typeorm-transactional';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,10 +12,9 @@ import { Repository } from 'typeorm';
 import { OrderProductEntity } from './entities/order-product.entity';
 import { CartService } from 'src/cart/cart.service';
 import { User } from 'src/auth/entities/auth.entity';
-import { Cart } from 'src/cart/entities';
+import { Cart, CartProduct } from 'src/cart/entities';
 import { ProductsService } from 'src/products/products.service';
-import { Product } from 'src/products/entities';
-import { error } from 'console';
+import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 
 @Injectable()
 export class OrderService {
@@ -29,10 +33,80 @@ export class OrderService {
   ) {}
 
   @Transactional()
-  async createOrder(createOrderDto: CreateOrderDto, user: User) {
+  async checkOrder(createOrderDto: CreateOrderDto, user: User) {
     const cart = await this.cartService.findOneCart(user);
 
+    if (!cart || !cart.products || cart.products.length === 0) {
+      throw new BadRequestException(
+        'The cart is empty, please add product to Cart.',
+      );
+    }
+
     this.checkStockProducts(cart);
+
+    const order = await this.createOrder(createOrderDto, user);
+
+    if (!order)
+      throw new NotFoundException(
+        'It has not been possible to create the order',
+      );
+
+    const orderProductPromise: Promise<OrderProductEntity | undefined>[] = [];
+
+    cart.products.map((productCart) => {
+      orderProductPromise.push(this.addOrderProduct(productCart, order));
+    });
+
+    await Promise.all(orderProductPromise);
+
+    await this.modifyStockProduct(cart);
+
+    await this.cartService.removeCart(user);
+
+    return this.findOneOrder(order.id);
+  }
+
+  private async findOneOrder(idOrder: string) {
+    const order = await this.orderUserRepository.findOneBy({ id: idOrder });
+
+    if (!order)
+      throw new NotFoundException('Order not found, please try again later.');
+
+    return order;
+  }
+
+  private async createOrder(createOrderDto: CreateOrderDto, user: User) {
+    const orderUser = this.orderUserRepository.create({
+      ...createOrderDto,
+      user,
+    });
+
+    try {
+      await this.orderUserRepository.save(orderUser);
+      return orderUser;
+    } catch (error) {
+      handleExceptions(error, this.logger);
+    }
+  }
+
+  private async addOrderProduct(
+    productCart: CartProduct,
+    order: OrderUserEntity,
+  ) {
+    const orderProduct = this.orderProductRepository.create({
+      order,
+      product: productCart.product,
+      quantity: productCart.quantity,
+      size: productCart.size,
+      unitPrice: productCart.product.price,
+    });
+
+    try {
+      await this.orderProductRepository.save(orderProduct);
+      return orderProduct;
+    } catch (error) {
+      handleExceptions(error, this.logger);
+    }
   }
 
   private checkStockProducts(cart: Cart) {
@@ -42,5 +116,26 @@ export class OrderService {
           `Product ${productCart.product.title} does not have enough stock, it only has ${productCart.product.stock} units`,
         );
     });
+  }
+
+  private async modifyStockProduct(cart: Cart) {
+    const updateProductPromise: Promise<any>[] = [];
+
+    cart.products.map((cartProduct) => {
+      const newStock = cartProduct.product.stock - cartProduct.quantity;
+
+      if (newStock < 0)
+        throw new BadRequestException(
+          `Product ${cartProduct.product.title} does not have enough stock, it only has ${cartProduct.product.stock} units`,
+        );
+
+      updateProductPromise.push(
+        this.productService.update(cartProduct.product.id, {
+          stock: newStock,
+        }),
+      );
+    });
+
+    await Promise.all(updateProductPromise);
   }
 }

@@ -11,6 +11,6 @@ export class OrderController {
   @Post()
   @Auth()
   create(@Body() createOrderDto: CreateOrderDto, @GetUser() user: User) {
-    return this.orderService.createOrder(createOrderDto, user);
+    return this.orderService.checkOrder(createOrderDto, user);
   }
 }

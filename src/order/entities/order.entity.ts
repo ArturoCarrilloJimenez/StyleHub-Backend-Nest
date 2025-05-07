@@ -25,8 +25,9 @@ export class OrderUserEntity {
   @ApiProperty()
   @OneToMany(() => OrderProductEntity, (orderProduct) => orderProduct.order, {
     onDelete: 'NO ACTION',
+    eager: true,
   })
-  orderProduct: OrderProductEntity;
+  orderProducts: OrderProductEntity;
 
   @ApiProperty()
   @Column('enum', {

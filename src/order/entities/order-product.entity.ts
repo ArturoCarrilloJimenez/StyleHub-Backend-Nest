@@ -24,7 +24,7 @@ export class OrderProductEntity {
   product: Product;
 
   @ApiProperty()
-  @ManyToOne(() => OrderUserEntity, (order) => order.orderProduct, {
+  @ManyToOne(() => OrderUserEntity, (order) => order.orderProducts, {
     onDelete: 'NO ACTION',
   })
   order: OrderUserEntity;
