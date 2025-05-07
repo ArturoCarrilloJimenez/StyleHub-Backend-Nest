@@ -12,11 +12,7 @@ import {
 import { ApiResponse } from '@nestjs/swagger';
 
 import { ProductsService } from './products.service';
-import {
-  CreateProductDto,
-  PaginateProductsDto,
-  UpdateProductDto,
-} from './dto/';
+import { CreateProductDto, FindAllProductsDto, UpdateProductDto } from './dto/';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
 import { User } from 'src/auth/entities/auth.entity';
@@ -45,7 +41,7 @@ export class ProductsController {
     type: [Product],
     description: 'Product was correct',
   })
-  findAll(@Query() query: PaginateProductsDto) {
+  findAll(@Query() query: FindAllProductsDto) {
     const { activeProducts, ...paginateDto } = query;
 
     return this.productsService.findAll(paginateDto, activeProducts);

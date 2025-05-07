@@ -2,7 +2,7 @@
 import { IsNumber, IsOptional, Max, Min } from 'class-validator';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
 
-export class PaginateProductsDto extends PaginateDto {
+export class FindAllProductsDto extends PaginateDto {
   @IsOptional()
   @IsNumber()
   @Min(0)

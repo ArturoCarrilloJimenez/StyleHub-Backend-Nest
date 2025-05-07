@@ -49,7 +49,7 @@ export class ProductsService {
     const { limit = 12, page = 0 } = paginateDto;
     const skip = (page - 1) * limit;
 
-    const whereCondition = isActiveProducts !== 0 ? { isActive: true } : {};
+    const activeCondition = isActiveProducts !== 0 ? { isActive: true } : {};
 
     const data = await this.productRepository.findAndCount({
       take: limit,
@@ -57,7 +57,7 @@ export class ProductsService {
       relations: {
         type: true,
       },
-      where: whereCondition,
+      where: { ...activeCondition },
     });
 
     return paginateResponse(data, page, limit);
