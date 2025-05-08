@@ -1,5 +1,4 @@
 export enum OrderStatus {
-  CREATE = 'CREATE', // Cart converted to order, payment not yet initiated
   PENDING = 'PENDING', // PaymentIntent created in Stripe, awaiting confirmation
   SUCCESSFUL = 'SUCCESSFUL', // Payment successful
   FAILED = 'FAILED', // Payment attempted but not completed (card declined, timeout, etc.)

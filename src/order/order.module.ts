@@ -6,6 +6,7 @@ import { OrderUserEntity } from './entities/order.entity';
 import { OrderProductEntity } from './entities/order-product.entity';
 import { CartModule } from 'src/cart/cart.module';
 import { ProductsModule } from 'src/products/products.module';
+import { PaymentModule } from 'src/payment/payment.module';
 
 @Module({
   controllers: [OrderController],
@@ -13,6 +14,7 @@ import { ProductsModule } from 'src/products/products.module';
     TypeOrmModule.forFeature([OrderUserEntity, OrderProductEntity]),
     CartModule,
     ProductsModule,
+    PaymentModule,
   ],
   providers: [OrderService],
 })

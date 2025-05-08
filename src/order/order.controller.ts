@@ -1,8 +1,8 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/create-order.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { User } from 'src/auth/entities/auth.entity';
+import { OrderPaymentDto } from './dto/order-payment.dto';
 
 @Controller('order')
 export class OrderController {
@@ -10,7 +10,7 @@ export class OrderController {
 
   @Post()
   @Auth()
-  create(@Body() createOrderDto: CreateOrderDto, @GetUser() user: User) {
-    return this.orderService.checkOrder(createOrderDto, user);
+  create(@Body() orderPaymentDto: OrderPaymentDto, @GetUser() user: User) {
+    return this.orderService.checkOrder(orderPaymentDto, user);
   }
 }

@@ -27,20 +27,18 @@ export class OrderUserEntity {
     onDelete: 'NO ACTION',
     eager: true,
   })
-  orderProducts: OrderProductEntity;
+  orderProducts: OrderProductEntity[];
 
   @ApiProperty()
   @Column('enum', {
     enum: OrderStatus,
-    default: OrderStatus['CREATE'],
+    default: OrderStatus['PENDING'],
   })
   status: string;
 
   @ApiProperty()
-  @Column('float')
-  logisticsCosts: number;
-
-  @ApiProperty()
-  @Column('text')
-  mailingAddress: string;
+  @Column('text', {
+    unique: true,
+  })
+  paymentId: string;
 }

@@ -11,6 +11,8 @@ import { ProductType } from './products/type/entities';
 import { ProductTypeModule } from './products/type/product-type.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
+import { StripeModule } from './webhook/stripe/stripe.module';
 
 @Module({
   imports: [
@@ -44,6 +46,10 @@ import { OrderModule } from './order/order.module';
     CartModule,
 
     OrderModule,
+
+    PaymentModule,
+
+    StripeModule,
   ],
   controllers: [],
   providers: [],
