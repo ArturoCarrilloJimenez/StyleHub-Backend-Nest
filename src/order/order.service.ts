@@ -17,6 +17,7 @@ import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { PaymentService } from 'src/payment/payment.service';
 import { OrderPaymentDto } from './dto/order-payment.dto';
 import { OrderUpdateDto } from './dto/order-update.dto';
+import { OrderStatus } from './interfaces/order.interfaces';
 
 @Injectable()
 export class OrderService {
@@ -131,6 +132,16 @@ export class OrderService {
   ) {
     const order = await this.findOneOrderBySessionPaymentId(idOrder);
 
+    switch (orderUpdate.status) {
+      case OrderStatus['SUCCESSFUL']:
+        await this.cartService.removeCart(order.user);
+        await this.modifyStockProduct(order);
+        break;
+
+      default:
+        break;
+    }
+
     const orderPreload = await this.orderUserRepository.preload({
       id: order.id,
       ...orderUpdate,
@@ -156,10 +167,10 @@ export class OrderService {
     });
   }
 
-  private async modifyStockProduct(cart: Cart) {
+  private async modifyStockProduct(order: OrderUserEntity) {
     const updateProductPromise: Promise<any>[] = [];
 
-    cart.products.map((cartProduct) => {
+    order.orderProducts.map((cartProduct) => {
       const newStock = cartProduct.product.stock - cartProduct.quantity;
 
       if (newStock < 0)

@@ -19,6 +19,7 @@ export class OrderUserEntity {
   @ApiProperty()
   @ManyToOne(() => User, (user) => user.order, {
     onDelete: 'NO ACTION',
+    eager: true,
   })
   user: User;
 
