@@ -1,15 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { OrderStatus } from 'src/order/interfaces/order.interfaces';
+import { OrderService } from 'src/order/order.service';
 import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
   constructor(
     @Inject('STRIPE_CLIENT') private readonly stripeClient: Stripe,
+
     private readonly configService: ConfigService,
+
+    private readonly orderService: OrderService,
   ) {}
 
-  webhookStripePayment(body: any, sig: string) {
+  async webhookStripePayment(body: any, sig: string) {
     const endpointSecret =
       this.configService.get<string>('STRIPE_WEBHOOK_SECRET') ?? '';
 
@@ -24,16 +29,38 @@ export class StripeService {
       // Procesar el evento según su tipo
       switch (event.type) {
         case 'checkout.session.async_payment_failed':
-          console.log(event);
+          await this.orderService.updateOrderStatusBySessionPayment(
+            event.data.object.id,
+            {
+              status: OrderStatus['FAILED'],
+            },
+          );
           break;
         case 'checkout.session.async_payment_succeeded':
-          console.log(event);
+          await this.orderService.updateOrderStatusBySessionPayment(
+            event.data.object.id,
+            {
+              paymentId: event.data.object.payment_intent as string,
+              status: OrderStatus['SUCCESSFUL'],
+            },
+          );
           break;
         case 'checkout.session.completed':
-          console.log(event);
+          await this.orderService.updateOrderStatusBySessionPayment(
+            event.data.object.id,
+            {
+              paymentId: event.data.object.payment_intent as string,
+              status: OrderStatus['SUCCESSFUL'],
+            },
+          );
           break;
         case 'checkout.session.expired':
-          console.log(event);
+          await this.orderService.updateOrderStatusBySessionPayment(
+            event.data.object.id,
+            {
+              status: OrderStatus['EXPIRED'],
+            },
+          );
           break;
         default:
           console.log(`Evento no procesado: ${event.type}`);

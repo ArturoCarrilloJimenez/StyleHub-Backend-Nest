@@ -39,6 +39,14 @@ export class OrderUserEntity {
   @ApiProperty()
   @Column('text', {
     unique: true,
+    nullable: true,
+  })
+  sessionPaymentId: string;
+
+  @ApiProperty()
+  @Column('text', {
+    unique: true,
+    nullable: true,
   })
   paymentId: string;
 }

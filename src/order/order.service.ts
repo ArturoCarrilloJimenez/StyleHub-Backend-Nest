@@ -16,6 +16,7 @@ import { ProductsService } from 'src/products/products.service';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { PaymentService } from 'src/payment/payment.service';
 import { OrderPaymentDto } from './dto/order-payment.dto';
+import { OrderUpdateDto } from './dto/order-update.dto';
 
 @Injectable()
 export class OrderService {
@@ -74,7 +75,7 @@ export class OrderService {
   private async createOrder(user: User, paymentId: string) {
     const orderUser = this.orderUserRepository.create({
       user,
-      paymentId,
+      sessionPaymentId: paymentId,
     });
 
     try {
@@ -100,6 +101,47 @@ export class OrderService {
     try {
       await this.orderProductRepository.save(orderProduct);
       return orderProduct;
+    } catch (error) {
+      handleExceptions(error, this.logger);
+    }
+  }
+
+  async findOneOrder(idOrder: string) {
+    const order = await this.orderUserRepository.findOneBy({ id: idOrder });
+
+    if (!order)
+      throw new NotFoundException('Order not found, please try again later.');
+
+    return order;
+  }
+  async findOneOrderBySessionPaymentId(idOrderSessionPayment: string) {
+    const order = await this.orderUserRepository.findOneBy({
+      sessionPaymentId: idOrderSessionPayment,
+    });
+
+    if (!order)
+      throw new NotFoundException('Order not found, please try again later.');
+
+    return order;
+  }
+
+  async updateOrderStatusBySessionPayment(
+    idOrder: string,
+    orderUpdate: OrderUpdateDto,
+  ) {
+    const order = await this.findOneOrderBySessionPaymentId(idOrder);
+
+    const orderPreload = await this.orderUserRepository.preload({
+      id: order.id,
+      ...orderUpdate,
+    });
+
+    if (!orderPreload)
+      throw new NotFoundException('Order not found, please try again later.');
+
+    try {
+      await this.orderUserRepository.save(orderPreload);
+      return orderPreload;
     } catch (error) {
       handleExceptions(error, this.logger);
     }
@@ -133,14 +175,5 @@ export class OrderService {
     });
 
     await Promise.all(updateProductPromise);
-  }
-
-  private async findOneOrder(idOrder: string) {
-    const order = await this.orderUserRepository.findOneBy({ id: idOrder });
-
-    if (!order)
-      throw new NotFoundException('Order not found, please try again later.');
-
-    return order;
   }
 }

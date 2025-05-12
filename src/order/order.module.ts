@@ -17,5 +17,6 @@ import { PaymentModule } from 'src/payment/payment.module';
     PaymentModule,
   ],
   providers: [OrderService],
+  exports: [OrderService],
 })
 export class OrderModule {}

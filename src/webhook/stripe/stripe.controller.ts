@@ -19,19 +19,24 @@ export class StripeController {
   private readonly logger = new Logger(StripeController.name);
 
   @Post()
-  webhookStripePayment(
+  async webhookStripePayment(
     @Req() req: RawBodyRequest<Request>,
     @Headers('stripe-signature') signature: string,
   ) {
     try {
       // Validar la firma del webhook
-      this.stripeService.webhookStripePayment(req.rawBody, signature);
+      await this.stripeService.webhookStripePayment(req.rawBody, signature);
       return { received: true };
     } catch (error) {
-      throw new HttpException(
-        'Webhook signature verification failed',
-        HttpStatus.BAD_REQUEST,
+      console.error(error);
+
+      console.error(
+        new HttpException(
+          'Webhook signature verification failed',
+          HttpStatus.BAD_REQUEST,
+        ),
       );
+      return { received: true };
     }
   }
 }
