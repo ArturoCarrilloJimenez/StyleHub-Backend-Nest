@@ -11,6 +11,7 @@ import {
 import { ValidRoles } from '../interfaces';
 import { Product } from 'src/products/entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { OrderUserEntity } from 'src/order/entities/order.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -50,6 +51,12 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.user)
   productsInsert: Product[];
+
+  @ApiProperty()
+  @OneToMany(() => OrderUserEntity, (order) => order.user, {
+    onDelete: 'NO ACTION',
+  })
+  order: OrderUserEntity;
 
   @ApiProperty()
   @CreateDateColumn()

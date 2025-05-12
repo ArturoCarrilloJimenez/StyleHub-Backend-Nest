@@ -1,0 +1,16 @@
+import { Body, Controller, Post } from '@nestjs/common';
+import { OrderService } from './order.service';
+import { Auth, GetUser } from 'src/auth/decorators';
+import { User } from 'src/auth/entities/auth.entity';
+import { OrderPaymentDto } from './dto/order-payment.dto';
+
+@Controller('order')
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  @Post()
+  @Auth()
+  create(@Body() orderPaymentDto: OrderPaymentDto, @GetUser() user: User) {
+    return this.orderService.checkOrder(orderPaymentDto, user);
+  }
+}

@@ -77,6 +77,10 @@ export class AuthService {
     return { user, token: this.getJwtToken({ id: user.id }) };
   }
 
+  async getUserById(idUser: string) {
+    return await this.userRepository.findOneBy({ id: idUser });
+  }
+
   private getJwtToken(payload: JwtPayload) {
     const token = this.jwtService.sign(payload);
 
