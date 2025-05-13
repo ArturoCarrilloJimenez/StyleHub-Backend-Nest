@@ -42,9 +42,7 @@ export class ProductsController {
     description: 'Product was correct',
   })
   findAll(@Query() query: FindAllProductsDto) {
-    const { activeProducts, ...paginateDto } = query;
-
-    return this.productsService.findAll(paginateDto, activeProducts);
+    return this.productsService.findAll(query);
   }
 
   @Get(':term')

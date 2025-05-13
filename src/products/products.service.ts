@@ -1,14 +1,13 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { Between, In, Like, Repository } from 'typeorm';
 
 import { validate as isUUID } from 'uuid';
 
 import { Product } from './entities';
 import { User } from 'src/auth/entities/auth.entity';
-import { CreateProductDto, UpdateProductDto } from './dto';
-import { PaginateDto } from 'src/commons/dtos/pagination.dto';
+import { CreateProductDto, FindAllProductsDto, UpdateProductDto } from './dto';
 
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { ProductTypeService } from './type/product-type.service';
@@ -45,11 +44,25 @@ export class ProductsService {
     }
   }
 
-  async findAll(paginateDto: PaginateDto, isActiveProducts: number = 1) {
-    const { limit = 12, page = 0 } = paginateDto;
+  async findAll(params: FindAllProductsDto) {
+    const {
+      limit = 12,
+      page = 0,
+      activeProducts = true,
+      minPrice = 0,
+      maxPrice = Number.MAX_VALUE,
+      search = '',
+      types = [],
+    } = params;
+
     const skip = (page - 1) * limit;
 
-    const activeCondition = isActiveProducts !== 0 ? { isActive: true } : {};
+    const activeCondition = activeProducts !== 0 ? { isActive: true } : {};
+    const typesCondition = Array.isArray(types)
+      ? types.length !== 0
+        ? { type: { name: In(types) } }
+        : {}
+      : { type: { name: types } };
 
     const data = await this.productRepository.findAndCount({
       take: limit,
@@ -57,7 +70,12 @@ export class ProductsService {
       relations: {
         type: true,
       },
-      where: { ...activeCondition },
+      where: {
+        ...activeCondition,
+        price: Between(minPrice, maxPrice),
+        title: Like(`%${search}%`),
+        ...typesCondition,
+      },
     });
 
     return paginateResponse(data, page, limit);
