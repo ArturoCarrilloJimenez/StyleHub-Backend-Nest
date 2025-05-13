@@ -53,6 +53,7 @@ export class ProductsService {
       maxPrice = Number.MAX_VALUE,
       search = '',
       types = [],
+      genders = [],
     } = params;
 
     const skip = (page - 1) * limit;
@@ -63,6 +64,12 @@ export class ProductsService {
         ? { type: { name: In(types) } }
         : {}
       : { type: { name: types } };
+
+    const genderCondition = Array.isArray(genders)
+      ? genders.length !== 0
+        ? { gender: In(genders) }
+        : {}
+      : { gender: genders };
 
     const data = await this.productRepository.findAndCount({
       take: limit,
@@ -75,6 +82,7 @@ export class ProductsService {
         price: Between(minPrice, maxPrice),
         title: Like(`%${search}%`),
         ...typesCondition,
+        ...genderCondition,
       },
     });
 

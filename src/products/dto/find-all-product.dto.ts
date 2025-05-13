@@ -1,7 +1,15 @@
 // paginate-products.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsIn,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator';
 import { PaginateDto } from 'src/commons/dtos/pagination.dto';
+import { ValidGender } from '../interfaces/product.interface';
 
 export class FindAllProductsDto extends PaginateDto {
   @ApiProperty({ required: false })
@@ -18,11 +26,6 @@ export class FindAllProductsDto extends PaginateDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString({ each: true })
-  types?: string[] | string = [];
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsNumber()
   @Min(0)
   minPrice?: number = 0;
@@ -32,4 +35,14 @@ export class FindAllProductsDto extends PaginateDto {
   @IsNumber()
   @Min(0)
   maxPrice?: number = Number.MAX_VALUE;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString({ each: true })
+  types?: string[] = [];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsIn(Object.values(ValidGender), { each: true })
+  genders?: string[] = [];
 }
