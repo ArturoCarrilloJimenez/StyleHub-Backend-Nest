@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Between, In, Like, Repository } from 'typeorm';
+import { Between, ILike, In, Repository } from 'typeorm';
 
 import { validate as isUUID } from 'uuid';
 
@@ -77,13 +77,22 @@ export class ProductsService {
       relations: {
         type: true,
       },
-      where: {
-        ...activeCondition,
-        price: Between(minPrice, maxPrice),
-        title: Like(`%${search}%`),
-        ...typesCondition,
-        ...genderCondition,
-      },
+      where: [
+        {
+          ...activeCondition,
+          price: Between(minPrice, maxPrice),
+          title: ILike(`%${search}%`),
+          ...typesCondition,
+          ...genderCondition,
+        },
+        {
+          ...activeCondition,
+          price: Between(minPrice, maxPrice),
+          description: ILike(`%${search}%`),
+          ...typesCondition,
+          ...genderCondition,
+        },
+      ],
     });
 
     return paginateResponse(data, page, limit);
