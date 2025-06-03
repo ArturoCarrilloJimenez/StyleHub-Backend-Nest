@@ -4,13 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
-import { EmailService } from 'src/seen-message/email/email.service';
+import { EmailService } from 'src/message/email/email.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entities/auth.entity';
 import { Repository } from 'typeorm';
 import { PasswordReset } from './entities/password-reset.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
+import { EmailTemplate } from 'src/message/email/templates/email.template.service';
 
 @Injectable()
 export class ResetPasswordService {
@@ -22,6 +23,7 @@ export class ResetPasswordService {
     private readonly passwordResetRepository: Repository<PasswordReset>,
 
     private readonly emailService: EmailService,
+    private readonly emailTemplate: EmailTemplate,
 
     private readonly encryptData: EncryptingData,
   ) {}
@@ -49,9 +51,13 @@ export class ResetPasswordService {
     }
 
     await this.emailService.send({
-      to: `StyleHub <${email}>`,
-      subject: 'prueba',
-      htmlBody: `Prueba de recuperar contraseña ${passwordReset.id}`,
+      to: `${email}`,
+      subject: 'StyleHub Password Reset Instructions',
+      htmlBody: this.emailTemplate.emailTemplate(
+        'reset-password',
+        passwordReset.user.fullName,
+        `auth/reset-password/${passwordReset.id}`,
+      ),
     });
 
     return { sendEmail: true };

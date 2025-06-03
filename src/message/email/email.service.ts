@@ -19,7 +19,7 @@ export class EmailService {
     const { to, subject, htmlBody, attachements = [] } = options;
     try {
       await this.transporter.sendMail({
-        from: this.configService.get('MAILER_EMAIL'),
+        from: `StyleHub <${this.configService.get('MAILER_EMAIL')}>`,
         to,
         subject,
         html: htmlBody,

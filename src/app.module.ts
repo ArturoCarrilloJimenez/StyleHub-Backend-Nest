@@ -13,8 +13,8 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { StripeModule } from './webhook/stripe/stripe.module';
-import { EmailModule } from './seen-message/email/email.module';
-import { EmailService } from './seen-message/email/email.service';
+import { EmailModule } from './message/email/email.module';
+import { EmailService } from './message/email/email.service';
 import { PasswordReset } from './auth/password-reset/entities/password-reset.entity';
 
 @Module({
