@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodeMailer from 'nodemailer';
 import { SendMailOptions } from './interfaces/emails.interface';
@@ -28,7 +28,9 @@ export class EmailService {
 
       return true;
     } catch (error) {
-      return false;
+      throw new NotFoundException(
+        'The email could not be sent, please try again later.',
+      );
     }
   }
 }

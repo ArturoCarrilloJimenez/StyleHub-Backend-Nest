@@ -16,11 +16,15 @@ export class PasswordReset {
   id: string;
 
   @ApiProperty()
-  @ManyToOne(() => UserEntity, (user) => user.passwordResets, { eager: false })
+  @ManyToOne(() => UserEntity, (user) => user.passwordResets, { eager: true })
   user: UserEntity;
 
   @ApiProperty()
-  @Column('date')
+  @Column('boolean', { default: false })
+  isOpen: boolean;
+
+  @ApiProperty()
+  @Column('timestamp')
   expiredData: Date;
 
   @ApiProperty()
@@ -29,6 +33,6 @@ export class PasswordReset {
 
   @BeforeInsert()
   generateExpiredDate() {
-    this.expiredData = new Date(this.insertDate.getTime() + 30 * 60 * 1000);
+    this.expiredData = new Date(new Date().getTime() + 30 * 60 * 1000);
   }
 }
