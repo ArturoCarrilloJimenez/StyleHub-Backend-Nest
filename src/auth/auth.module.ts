@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 
 import { AuthController } from './auth.controller';
-import { User } from './entities/auth.entity';
+import { UserEntity } from './entities/auth.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UtilsModule } from 'src/commons/utils/utils.module';
+import { ResetPasswordModule } from './password-reset/password-reset.module';
 
 @Module({
   controllers: [AuthController],
@@ -16,8 +17,7 @@ import { UtilsModule } from 'src/commons/utils/utils.module';
   imports: [
     ConfigModule,
     UtilsModule,
-
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([UserEntity]),
 
     PassportModule.register({
       defaultStrategy: 'jwt',
@@ -35,6 +35,8 @@ import { UtilsModule } from 'src/commons/utils/utils.module';
         };
       },
     }),
+
+    ResetPasswordModule,
   ],
   exports: [JwtStrategy, TypeOrmModule, PassportModule, JwtModule],
 })

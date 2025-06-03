@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cart, CartProduct } from './entities';
 import { Repository } from 'typeorm';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { ProductsService } from 'src/products/products.service';
 import { UpdateCartProductDto } from './dto/update-cart-product.dto';
@@ -27,7 +27,7 @@ export class CartService {
     private readonly productService: ProductsService,
   ) {}
 
-  async createCart(user: User) {
+  async createCart(user: UserEntity) {
     try {
       const cart = this.cartRepository.create({
         user,
@@ -41,7 +41,7 @@ export class CartService {
     }
   }
 
-  async findOneCart(user: User) {
+  async findOneCart(user: UserEntity) {
     let cart: Cart | null | undefined = await this.cartRepository.findOneBy({
       user: { id: user.id },
     });
@@ -54,7 +54,7 @@ export class CartService {
     return cart;
   }
 
-  async removeCart(user: User) {
+  async removeCart(user: UserEntity) {
     const cart = await this.cartRepository.findOneBy({
       user: { id: user.id },
     });
@@ -64,7 +64,7 @@ export class CartService {
     await this.cartRepository.remove(cart);
   }
 
-  async updateProduct(updateCartProduct: UpdateCartProductDto, user: User) {
+  async updateProduct(updateCartProduct: UpdateCartProductDto, user: UserEntity) {
     const { quantity, product, size } = updateCartProduct;
 
     const userSendQuantity = !!quantity;
@@ -104,7 +104,7 @@ export class CartService {
     return this.findOneCart(user);
   }
 
-  async removeProduct(product: string, user: User) {
+  async removeProduct(product: string, user: UserEntity) {
     const cart = await this.findOneCart(user);
     const cartProduct = await this.findCartProduct(product, cart);
 

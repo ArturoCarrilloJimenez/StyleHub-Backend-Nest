@@ -15,11 +15,9 @@ import { ProductsService } from './products.service';
 import { CreateProductDto, FindAllProductsDto, UpdateProductDto } from './dto/';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/interfaces';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { Product } from './entities';
 
-// TODO añadir método con like por nombre de producto entre otras cosas, esto se usara en un futuro para un búsqueda
-// TODO añadir métodos para filtrar productos por el type, gender...
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -31,7 +29,7 @@ export class ProductsController {
     type: Product,
     description: 'Product is created',
   })
-  create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
+  create(@Body() createProductDto: CreateProductDto, @GetUser() user: UserEntity) {
     return this.productsService.create(createProductDto, user);
   }
 

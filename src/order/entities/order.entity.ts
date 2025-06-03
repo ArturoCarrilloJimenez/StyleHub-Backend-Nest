@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { OrderProductEntity } from './order-product.entity';
 import { OrderStatus } from '../interfaces/order.interfaces';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 
 @Entity({ name: 'order_user' })
 export class OrderUserEntity {
@@ -17,11 +17,11 @@ export class OrderUserEntity {
   id: string;
 
   @ApiProperty()
-  @ManyToOne(() => User, (user) => user.order, {
+  @ManyToOne(() => UserEntity, (user) => user.order, {
     onDelete: 'NO ACTION',
     eager: true,
   })
-  user: User;
+  user: UserEntity;
 
   @ApiProperty()
   @OneToMany(() => OrderProductEntity, (orderProduct) => orderProduct.order, {

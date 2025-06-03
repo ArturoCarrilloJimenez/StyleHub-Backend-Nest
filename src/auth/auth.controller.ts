@@ -3,14 +3,14 @@ import { Controller, Post, Body, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto/';
 import { GetUser, Auth } from './decorators/';
-import { User } from './entities/auth.entity';
+import { UserEntity } from './entities/auth.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Get('check-status')
   @Auth()
-  checkAuthStatus(@GetUser() user: User) {
+  checkAuthStatus(@GetUser() user: UserEntity) {
     return this.authService.checkAuthStatus(user);
   }
 

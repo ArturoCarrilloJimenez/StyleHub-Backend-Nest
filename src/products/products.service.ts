@@ -6,7 +6,7 @@ import { Between, ILike, In, Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
 
 import { Product } from './entities';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { CreateProductDto, FindAllProductsDto, UpdateProductDto } from './dto';
 
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
@@ -25,7 +25,7 @@ export class ProductsService {
     private readonly productTypeService: ProductTypeService,
   ) {}
 
-  async create(createProductDto: CreateProductDto, user: User) {
+  async create(createProductDto: CreateProductDto, user: UserEntity) {
     const { type, ...productDetail } = createProductDto;
 
     const findType = await this.productTypeService.findOne(type);

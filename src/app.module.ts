@@ -13,6 +13,9 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { StripeModule } from './webhook/stripe/stripe.module';
+import { EmailModule } from './seen-message/email/email.module';
+import { EmailService } from './seen-message/email/email.service';
+import { PasswordReset } from './auth/password-reset/entities/password-reset.entity';
 
 @Module({
   imports: [
@@ -29,7 +32,11 @@ import { StripeModule } from './webhook/stripe/stripe.module';
         rejectUnauthorized: false, // Clever Cloud suele requerir SSL
       },
       // Exporto con una expresión los entities para ahorrarme el tiempo de configurar uno a uno a mano
-      entities: [__dirname + '/**/entities/*.entity{.ts,.js}', ProductType],
+      entities: [
+        __dirname + '/**/entities/*.entity{.ts,.js}',
+        ProductType,
+        PasswordReset,
+      ],
       synchronize: true,
     }),
 
@@ -50,6 +57,8 @@ import { StripeModule } from './webhook/stripe/stripe.module';
     PaymentModule,
 
     StripeModule,
+
+    EmailModule,
   ],
   controllers: [],
   providers: [],
