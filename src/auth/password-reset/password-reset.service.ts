@@ -64,20 +64,7 @@ export class ResetPasswordService {
   }
 
   async reset(id: string, { password }: ResetPasswordDto) {
-    const passwordReset = await this.passwordResetRepository.findOneBy({ id });
-
-    if (!passwordReset)
-      throw new BadRequestException(
-        `Token ${id} does not exist, please check if it is correct or try again later.`,
-      );
-
-    if (
-      passwordReset.isOpen ||
-      passwordReset.expiredData.getTime() >= new Date().getTime()
-    )
-      throw new NotFoundException(
-        'This token has already been used or has already expired',
-      );
+    const passwordReset = await this.check(id);
 
     await this.openPasswordReset(id);
     await this.modifyPassword(password, passwordReset);
@@ -103,6 +90,25 @@ export class ResetPasswordService {
         'Something went wrong while trying to recover your password, please try again later.',
       );
     }
+  }
+
+  async check(id: string) {
+    const passwordReset = await this.passwordResetRepository.findOneBy({ id });
+
+    if (!passwordReset)
+      throw new BadRequestException(
+        `Token ${id} does not exist, please check if it is correct or try again later.`,
+      );
+
+    if (
+      passwordReset.isOpen ||
+      passwordReset.expiredData.getTime() <= new Date().getTime()
+    )
+      throw new NotFoundException(
+        'This token has already been used or has already expired',
+      );
+
+    return passwordReset;
   }
 
   private async modifyPassword(password: string, passwordReset: PasswordReset) {

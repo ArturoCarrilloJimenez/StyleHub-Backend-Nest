@@ -1,4 +1,11 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 import { ResetPasswordService } from './password-reset.service';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -20,5 +27,10 @@ export class ResetPasswordController {
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
     return await this.passwordResetService.reset(id, resetPasswordDto);
+  }
+
+  @Get(':id')
+  async checkResetPassword(@Param('id', ParseUUIDPipe) id: string) {
+    return await this.passwordResetService.check(id);
   }
 }
