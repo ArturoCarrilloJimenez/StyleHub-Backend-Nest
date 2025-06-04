@@ -41,23 +41,33 @@ jobs:
         run: |
           docker tag ${{ secrets.IMAGE_NAME }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:api
 
-      - name: Push Docker image to DockerHub
+      - name: Push Docker image to DockerHub (con reintentos)
         run: |
-          docker push  ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:api
+          MAX_RETRIES=3
+          COUNT=0
+          until [ $COUNT -ge $MAX_RETRIES ]
+          do
+            docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:api && break
+            COUNT=$((COUNT+1))
+            echo "  [Push fallido, reintentando ($COUNT/$MAX_RETRIES) en 10 s...]"
+            sleep 10
+          done
+          if [ $COUNT -eq $MAX_RETRIES ]; then
+            echo "  ERROR: No se pudo subir la imagen tras $MAX_RETRIES intentos."
+            exit 1
+          fi
 
   Deploy-Render:
     needs: Build
     runs-on: ubuntu-latest
 
     steps:
-      # Paso 1: Instalar Render CLI
       - name: Install Render CLI
         run: |
           curl -L https://github.com/render-oss/cli/releases/download/v1.1.0/cli_1.1.0_linux_amd64.zip -o render.zip
           unzip render.zip
           sudo mv cli_v1.1.0 /usr/local/bin/render
 
-      # Paso 2: Lanzar Deploy con Render CLI
       - name: Trigger deploy with Render CLI
         env:
           RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
