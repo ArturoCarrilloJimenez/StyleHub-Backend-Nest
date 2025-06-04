@@ -10,7 +10,7 @@ import { OrderUserEntity } from './entities/order.entity';
 import { Repository } from 'typeorm';
 import { OrderProductEntity } from './entities/order-product.entity';
 import { CartService } from 'src/cart/cart.service';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { Cart, CartProduct } from 'src/cart/entities';
 import { ProductsService } from 'src/products/products.service';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
@@ -38,7 +38,7 @@ export class OrderService {
   ) {}
 
   @Transactional()
-  async checkOrder(orderPaymentDto: OrderPaymentDto, user: User) {
+  async checkOrder(orderPaymentDto: OrderPaymentDto, user: UserEntity) {
     const cart = await this.cartService.findOneCart(user);
 
     if (!cart || !cart.products || cart.products.length === 0) {
@@ -73,7 +73,7 @@ export class OrderService {
     return { url: sessionPayment.url };
   }
 
-  private async createOrder(user: User, paymentId: string) {
+  private async createOrder(user: UserEntity, paymentId: string) {
     const orderUser = this.orderUserRepository.create({
       user,
       sessionPaymentId: paymentId,

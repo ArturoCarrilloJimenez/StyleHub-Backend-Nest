@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { Cart } from 'src/cart/entities';
 import { OrderPaymentDto } from 'src/order/dto/order-payment.dto';
 import Stripe from 'stripe';
@@ -14,7 +14,7 @@ export class PaymentService {
 
   async createSessionPayment(
     cart: Cart,
-    user: User,
+    user: UserEntity,
     orderPaymentDto: OrderPaymentDto,
   ) {
     const line_items = this.prepareListProduct(cart);

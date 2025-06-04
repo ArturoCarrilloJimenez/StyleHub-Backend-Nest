@@ -63,10 +63,9 @@ export class StripeService {
           );
           break;
         default:
-          console.log(`Evento no procesado: ${event.type}`);
+          break;
       }
     } catch (err: any) {
-      console.error('Error verificando la firma: ', err.message);
       throw new Error('Webhook signature verification failed');
     }
   }

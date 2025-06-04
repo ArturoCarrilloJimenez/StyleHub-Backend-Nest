@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import {
   CreateDateColumn,
   Entity,
@@ -17,9 +17,9 @@ export class Cart {
   id: string;
 
   @ApiProperty()
-  @OneToOne(() => User)
+  @OneToOne(() => UserEntity)
   @JoinColumn()
-  user: User;
+  user: UserEntity;
 
   @OneToMany(() => CartProduct, (cart) => cart.cart, {
     cascade: true,

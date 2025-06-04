@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ValidGender, ValidSizes } from '../interfaces/product.interface';
 import { ProductType } from '../type/entities/product-type.entity';
@@ -78,8 +78,8 @@ export class Product {
   @Column('boolean', { default: true })
   isActive: boolean;
 
-  @ManyToOne(() => User, (user) => user.productsInsert)
-  user: User;
+  @ManyToOne(() => UserEntity, (user) => user.productsInsert)
+  user: UserEntity;
 
   @ApiProperty()
   @ManyToOne(() => ProductType, (type) => type.product, {

@@ -3,12 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 
 import { Repository } from 'typeorm';
-import { User } from './entities/auth.entity';
+import { UserEntity } from './entities/auth.entity';
 import { CreateUserDto, LoginUserDto } from './dto/';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { handleExceptions } from 'src/commons/utils/handleExcepions.utils';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
-
 // TODO realizar borrado lógico
 // TODO realizar comprobación de que el email ya existe
 // TODO realizar recuperar contraseña
@@ -17,8 +16,8 @@ export class AuthService {
   private readonly logger = new Logger('AuthService');
 
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
 
     private readonly jwtService: JwtService,
 
@@ -73,7 +72,7 @@ export class AuthService {
     return { user, token: this.getJwtToken({ id: user.id }) };
   }
 
-  checkAuthStatus(user: User) {
+  checkAuthStatus(user: UserEntity) {
     return { user, token: this.getJwtToken({ id: user.id }) };
   }
 

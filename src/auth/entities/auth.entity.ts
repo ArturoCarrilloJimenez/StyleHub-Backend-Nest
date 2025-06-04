@@ -12,9 +12,10 @@ import { ValidRoles } from '../interfaces';
 import { Product } from 'src/products/entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { OrderUserEntity } from 'src/order/entities/order.entity';
+import { PasswordReset } from '../password-reset/entities/password-reset.entity';
 
 @Entity({ name: 'users' })
-export class User {
+export class UserEntity {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -57,6 +58,10 @@ export class User {
     onDelete: 'NO ACTION',
   })
   order: OrderUserEntity;
+
+  @ApiProperty()
+  @OneToMany(() => PasswordReset, (passwordReste) => passwordReste.user)
+  passwordResets: PasswordReset[];
 
   @ApiProperty()
   @CreateDateColumn()

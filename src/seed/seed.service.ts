@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ProductsService } from 'src/products/products.service';
 
 import { initialData } from './data/seed';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
@@ -14,15 +14,15 @@ export class SeedService {
     private readonly productService: ProductsService,
     private readonly productTypeService: ProductTypeService,
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
 
     private readonly encryptData: EncryptingData,
   ) {}
 
   async executeSeed() {
     await this.deleteTables();
-    const user: User = await this.insertNewUsers();
+    const user: UserEntity = await this.insertNewUsers();
     await this.insertNewProductTypes();
     await this.insertNewProducts(user);
 
@@ -40,7 +40,7 @@ export class SeedService {
   private async insertNewUsers() {
     const seedUsers = initialData.users;
 
-    const users: User[] = [];
+    const users: UserEntity[] = [];
 
     seedUsers.map((user) => {
       user.password = this.encryptData.encrypt(user.password);
@@ -65,7 +65,7 @@ export class SeedService {
     return true;
   }
 
-  private async insertNewProducts(user: User) {
+  private async insertNewProducts(user: UserEntity) {
     const products = initialData.products;
 
     const insertPromise: any[] = [];

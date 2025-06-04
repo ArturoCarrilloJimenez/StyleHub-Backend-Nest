@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Auth, GetUser } from 'src/auth/decorators';
-import { User } from 'src/auth/entities/auth.entity';
+import { UserEntity } from 'src/auth/entities/auth.entity';
 import { UpdateCartProductDto } from './dto/update-cart-product.dto';
 
 @Controller('cart')
@@ -10,19 +10,19 @@ export class CartController {
 
   @Get()
   @Auth()
-  getOneCart(@GetUser() user: User) {
+  getOneCart(@GetUser() user: UserEntity) {
     return this.cartService.findOneCart(user);
   }
 
   @Patch()
   @Auth()
-  addProduct(@GetUser() user: User, @Body() cartProduct: UpdateCartProductDto) {
+  addProduct(@GetUser() user: UserEntity, @Body() cartProduct: UpdateCartProductDto) {
     return this.cartService.updateProduct(cartProduct, user);
   }
 
   @Delete()
   @Auth()
-  deleteOneCart(@GetUser() user: User) {
+  deleteOneCart(@GetUser() user: UserEntity) {
     return this.cartService.removeCart(user);
   }
 
@@ -30,7 +30,7 @@ export class CartController {
   @Auth()
   deleteOneCartProduct(
     @Param(':product') product: string,
-    @GetUser() user: User,
+    @GetUser() user: UserEntity,
   ) {
     return this.cartService.removeProduct(product, user);
   }
