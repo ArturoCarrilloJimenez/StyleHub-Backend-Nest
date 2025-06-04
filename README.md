@@ -40,3 +40,4 @@ This project has a Seed, which dumps various test products. To see the path, acc
 
 - Author: Arturo Carrillo Jiménez
 - Website: [https://sylehub-back.onrender.com/api](https://sylehub-back.onrender.com/api)
+
