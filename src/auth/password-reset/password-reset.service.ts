@@ -11,7 +11,7 @@ import { Repository } from 'typeorm';
 import { PasswordReset } from './entities/password-reset.entity';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { EncryptingData } from 'src/commons/utils/encriptData.utils';
-import { EmailTemplate } from 'src/message/email/templates/email.template.service';
+import { EmailTemplateService } from 'src/message/email/templates/email.template.service';
 
 @Injectable()
 export class ResetPasswordService {
@@ -23,7 +23,7 @@ export class ResetPasswordService {
     private readonly passwordResetRepository: Repository<PasswordReset>,
 
     private readonly emailService: EmailService,
-    private readonly emailTemplate: EmailTemplate,
+    private readonly emailTemplate: EmailTemplateService,
 
     private readonly encryptData: EncryptingData,
   ) {}
@@ -53,11 +53,10 @@ export class ResetPasswordService {
     await this.emailService.send({
       to: `${email}`,
       subject: 'StyleHub Password Reset Instructions',
-      htmlBody: this.emailTemplate.emailTemplate(
+      htmlBody: this.emailTemplate.createTemplate(
         'reset-password',
         passwordReset.user.fullName,
-        `auth/reset-password/${passwordReset.id}`,
-      ),
+      )(`auth/reset-password/${passwordReset.id}`),
     });
 
     return { sendEmail: true };

@@ -47,13 +47,29 @@ export class OrderProductEntity {
   })
   size: string;
 
+  @ApiProperty()
+  @Column('float', {
+    default: 0,
+  })
+  totalPrice: number;
+
   @BeforeInsert()
   chargeUnitPrice() {
     this.unitPrice = this.product.price;
   }
 
+  @BeforeInsert()
+  chargeTotalPrice() {
+    this.totalPrice = this.unitPrice * this.quantity;
+  }
+
   @BeforeUpdate()
   chargeUnitPriceUpdate() {
     this.chargeUnitPrice();
+  }
+
+  @BeforeUpdate()
+  chargeTotalPriceUpdate() {
+    this.chargeTotalPrice();
   }
 }
