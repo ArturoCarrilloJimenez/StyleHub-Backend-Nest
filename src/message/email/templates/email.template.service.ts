@@ -16,6 +16,7 @@ export class EmailTemplateService {
 
   createTemplate(type: EmailTemplateType, userName: string): any {
     const host = `${this.configService.get('HOST_FRONT')}`;
+    const hostApi = `${this.configService.get('HOST_API')}`;
 
     switch (type) {
       case 'reset-password':
@@ -43,10 +44,18 @@ export class EmailTemplateService {
           // Registros de productos
           const itemsHtml = orderProducts
             .map((item) =>
-              emailInvoiceItemTemplate.replace(
-                /\$\{item\}/g,
-                item.product.title,
-              ),
+              emailInvoiceItemTemplate
+                .replace(/\$\{item.name\}/g, item.product.title)
+                .replace(
+                  /\$\{item.image_url\}/g,
+                  `${hostApi}files/product/${item.product?.images[0]}`,
+                )
+                .replace(/\$\{item.quantity\}/g, item.quantity.toString())
+                .replace(
+                  /\$\{item.unit_price\}/g,
+                  item.product.price.toString(),
+                )
+                .replace(/\$\{item.subtotal\}/g, item.totalPrice.toString()),
             )
             .join('');
 
@@ -73,6 +82,6 @@ export class EmailTemplateService {
   ): string {
     return template
       .replace(/\$\{user_name\}/g, userName)
-      .replace(/\$\{host\}/g, host);
+      .replace(/\$\{link_front\}/g, host);
   }
 }
