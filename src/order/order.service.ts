@@ -18,6 +18,8 @@ import { PaymentService } from 'src/payment/payment.service';
 import { OrderPaymentDto } from './dto/order-payment.dto';
 import { OrderUpdateDto } from './dto/order-update.dto';
 import { OrderStatus } from './interfaces/order.interfaces';
+import { EmailService } from 'src/message/email/email.service';
+import { EmailTemplateService } from 'src/message/email/templates/email.template.service';
 
 @Injectable()
 export class OrderService {
@@ -35,10 +37,14 @@ export class OrderService {
     private readonly productService: ProductsService,
 
     private readonly paymentService: PaymentService,
+
+    private readonly emailService: EmailService,
+    private readonly emailTemplateService: EmailTemplateService,
   ) {}
 
   @Transactional()
   async checkOrder(orderPaymentDto: OrderPaymentDto, user: UserEntity) {
+    // Busco el carrito del usuario-
     const cart = await this.cartService.findOneCart(user);
 
     if (!cart || !cart.products || cart.products.length === 0) {
@@ -47,14 +53,16 @@ export class OrderService {
       );
     }
 
-    this.checkStockProducts(cart);
+    this.checkStockProducts(cart); // Verifico que haya stock de los productos
 
+    // Si todo está correcto, creo el pago de la sesión
     const sessionPayment = await this.paymentService.createSessionPayment(
       cart,
       user,
       orderPaymentDto,
     );
 
+    // Creo la orden con el usuario y el ID de la sesión de pago
     const order = await this.createOrder(user, sessionPayment.id);
 
     if (!order)
@@ -62,6 +70,7 @@ export class OrderService {
         'It has not been possible to create the order',
       );
 
+    // Agrego los productos del carrito a la orden
     const orderProductPromise: Promise<OrderProductEntity | undefined>[] = [];
 
     cart.products.map((productCart) => {
@@ -69,6 +78,22 @@ export class OrderService {
     });
 
     await Promise.all(orderProductPromise);
+
+    // Calculo el total de la orden
+    const orderWithProducts = await this.orderUserRepository.findOne({
+      where: { id: order.id },
+      relations: ['orderProducts'],
+    });
+
+    if (!orderWithProducts)
+      throw new NotFoundException('Order not found, please try again later.');
+
+    orderWithProducts.total_amount = orderWithProducts.orderProducts.reduce(
+      (total, item) => total + item.totalPrice,
+      0,
+    );
+
+    await this.orderUserRepository.save(orderWithProducts);
 
     return { url: sessionPayment.url };
   }
@@ -136,6 +161,7 @@ export class OrderService {
       case OrderStatus['SUCCESSFUL']:
         await this.cartService.removeCart(order.user);
         await this.modifyStockProduct(order);
+        await this.sendEmailOrder(order);
         break;
 
       default:
@@ -186,5 +212,16 @@ export class OrderService {
     });
 
     await Promise.all(updateProductPromise);
+  }
+
+  private async sendEmailOrder(order: OrderUserEntity) {
+    await this.emailService.send({
+      to: order.user.email,
+      subject: 'Order Confirmation',
+      htmlBody: this.emailTemplateService.createTemplate(
+        'invoice',
+        order.user.fullName,
+      )(order),
+    });
   }
 }

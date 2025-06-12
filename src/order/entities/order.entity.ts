@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  BeforeInsert,
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -31,6 +33,12 @@ export class OrderUserEntity {
   orderProducts: OrderProductEntity[];
 
   @ApiProperty()
+  @Column('float', {
+    default: 0,
+  })
+  total_amount: number;
+
+  @ApiProperty()
   @Column('enum', {
     enum: OrderStatus,
     default: OrderStatus['PENDING'],
@@ -50,4 +58,8 @@ export class OrderUserEntity {
     nullable: true,
   })
   paymentId: string;
+
+  @ApiProperty()
+  @CreateDateColumn()
+  insertDate: Date;
 }
