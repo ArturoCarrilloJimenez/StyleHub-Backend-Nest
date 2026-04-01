@@ -1,0 +1,30 @@
+---
+interface Props {
+  title: string;
+  value: string | number;
+  icon?: string;
+  subtitle?: string;
+  trend?: 'up' | 'down' | 'neutral';
+  trendValue?: string;
+}
+
+const { title, value, icon, subtitle, trend, trendValue } = Astro.props;
+---
+
+<div class="metric-card">
+  <div class="flex items-start justify-between">
+    <div class="flex-1">
+      <p class="text-primary-100 text-sm font-medium">{title}</p>
+      <p class="text-3xl font-bold mt-2">{value}</p>
+      {subtitle && <p class="text-primary-100 text-sm mt-1">{subtitle}</p>}
+      {trend && trendValue && (
+        <div class="flex items-center mt-2">
+          <span class={`text-sm ${trend === 'up' ? 'text-green-200' : trend === 'down' ? 'text-red-200' : 'text-gray-200'}`}>
+            {trend === 'up' ? '↑' : trend === 'down' ? '↓' : '→'} {trendValue}
+          </span>
+        </div>
+      )}
+    </div>
+    {icon && <span class="text-4xl opacity-80">{icon}</span>}
+  </div>
+</div>

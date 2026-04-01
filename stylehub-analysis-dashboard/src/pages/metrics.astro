@@ -1,0 +1,211 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import MetricCard from '../components/MetricCard.astro';
+import { salesData, topProducts, categoryDistribution, genderDistribution, priceRanges, stockStatus, orderStatuses, conversionFunnel } from '../data/metricsData';
+import { productStats } from '../data/seedProducts';
+import '../styles/global.css';
+---
+
+<Layout title="Metrics & KPIs" currentPage="/metrics">
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <MetricCard title="Total Products" value={productStats.total} icon="📦" subtitle="In catalog" />
+      <MetricCard title="Total Stock" value={productStats.totalStock} icon="📊" subtitle="Units" trend="up" trendValue="+12%" />
+      <MetricCard title="Avg Price" value={`$${productStats.averagePrice}`} icon="💰" subtitle="Per product" />
+      <MetricCard title="Out of Stock" value={productStats.outOfStock} icon="⚠️" subtitle="Products" trend="down" trendValue="-2" />
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card title="Sales Revenue (Last 6 Months)">
+        <div class="space-y-3">
+          {salesData.map(month => (
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div>
+                <div class="font-semibold text-gray-800">{month.month}</div>
+                <div class="text-xs text-gray-500">{month.orders} orders</div>
+              </div>
+              <div class="text-right">
+                <div class="font-bold text-primary-600">${month.revenue.toLocaleString()}</div>
+                <div class="text-xs text-gray-500">Avg: ${month.avgOrder.toFixed(2)}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Stock Status">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="text-center p-4 bg-green-50 rounded-lg">
+            <div class="text-3xl font-bold text-green-600">{stockStatus.inStock}</div>
+            <div class="text-sm text-gray-600 mt-1">In Stock</div>
+          </div>
+          <div class="text-center p-4 bg-red-50 rounded-lg">
+            <div class="text-3xl font-bold text-red-600">{stockStatus.outOfStock}</div>
+            <div class="text-sm text-gray-600 mt-1">Out of Stock</div>
+          </div>
+          <div class="text-center p-4 bg-yellow-50 rounded-lg">
+            <div class="text-3xl font-bold text-yellow-600">{stockStatus.lowStock}</div>
+            <div class="text-sm text-gray-600 mt-1">Low Stock (&lt;10)</div>
+          </div>
+          <div class="text-center p-4 bg-blue-50 rounded-lg">
+            <div class="text-3xl font-bold text-blue-600">{stockStatus.totalUnits}</div>
+            <div class="text-sm text-gray-600 mt-1">Total Units</div>
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <Card title="Top 10 Products by Stock">
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Stock</th>
+              <th>Price</th>
+              <th>Potential Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topProducts.map((product, index) => (
+              <tr>
+                <td>
+                  <div class="flex items-center">
+                    <span class="font-semibold text-gray-700 mr-2">#{index + 1}</span>
+                    <span class="text-sm">{product.name}</span>
+                  </div>
+                </td>
+                <td><span class="badge badge-info">{product.stock} units</span></td>
+                <td class="font-mono">${product.price}</td>
+                <td class="font-bold text-green-600">${product.revenue.toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card title="Category Distribution">
+        <div class="space-y-3">
+          {categoryDistribution.map(cat => (
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium text-gray-700">{cat.category}</span>
+                <span class="text-sm text-gray-600">{cat.count} ({cat.percentage}%)</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-primary-600 h-2 rounded-full" style={`width: ${cat.percentage}%`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Gender Distribution">
+        <div class="space-y-3">
+          {genderDistribution.map(gender => (
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm font-medium text-gray-700">{gender.gender}</span>
+                <span class="text-sm text-gray-600">{gender.count} ({gender.percentage}%)</span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style={`width: ${gender.percentage}%`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+
+    <Card title="Price Range Distribution">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {priceRanges.map(range => (
+          <div class="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+            <div class="text-2xl font-bold text-blue-700">{range.count}</div>
+            <div class="text-sm text-gray-600 mt-1">{range.range}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title="Order Status Distribution">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {orderStatuses.map(status => (
+          <div class={`text-center p-4 rounded-lg ${
+            status.status === 'SUCCESSFUL' ? 'bg-green-50' :
+            status.status === 'PENDING' ? 'bg-yellow-50' :
+            status.status === 'FAILED' ? 'bg-red-50' :
+            'bg-gray-50'
+          }`}>
+            <div class={`text-3xl font-bold ${
+              status.status === 'SUCCESSFUL' ? 'text-green-600' :
+              status.status === 'PENDING' ? 'text-yellow-600' :
+              status.status === 'FAILED' ? 'text-red-600' :
+              'text-gray-600'
+            }`}>{status.count}</div>
+            <div class="text-sm text-gray-600 mt-1">{status.status}</div>
+            <div class="text-xs text-gray-500 mt-1">{status.percentage}%</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title="Conversion Funnel">
+      <div class="space-y-4">
+        {conversionFunnel.map((stage, index) => (
+          <div>
+            <div class="flex justify-between mb-2">
+              <span class="font-medium text-gray-800">{stage.stage}</span>
+              <span class="text-gray-600">{stage.count.toLocaleString()} ({stage.percentage}%)</span>
+            </div>
+            <div class="relative">
+              <div class="w-full bg-gray-200 rounded-full h-8 overflow-hidden">
+                <div 
+                  class={`h-8 rounded-full flex items-center justify-end pr-3 text-white text-sm font-semibold ${
+                    index === 0 ? 'bg-blue-500' :
+                    index === 1 ? 'bg-blue-600' :
+                    index === 2 ? 'bg-green-500' :
+                    index === 3 ? 'bg-green-600' :
+                    'bg-green-700'
+                  }`}
+                  style={`width: ${stage.percentage}%`}
+                >
+                  {stage.percentage}%
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+        <h4 class="font-semibold text-blue-900 mb-2">Conversion Rate</h4>
+        <p class="text-sm text-blue-700">
+          De 5,000 visitas, 280 se convierten en compras = <strong>5.6% conversion rate</strong>
+        </p>
+      </div>
+    </Card>
+
+    <Card title="Key Performance Indicators">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+          <div class="text-sm text-green-700 mb-1">Average Order Value</div>
+          <div class="text-3xl font-bold text-green-900">$275.64</div>
+          <div class="text-xs text-green-600 mt-1">↑ 3.2% vs last month</div>
+        </div>
+        <div class="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+          <div class="text-sm text-blue-700 mb-1">Cart Abandonment Rate</div>
+          <div class="text-3xl font-bold text-blue-900">62.5%</div>
+          <div class="text-xs text-blue-600 mt-1">↓ 5% vs last month</div>
+        </div>
+        <div class="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+          <div class="text-sm text-purple-700 mb-1">Customer Lifetime Value</div>
+          <div class="text-3xl font-bold text-purple-900">$825</div>
+          <div class="text-xs text-purple-600 mt-1">↑ 8% vs last month</div>
+        </div>
+      </div>
+    </Card>
+  </div>
+</Layout>

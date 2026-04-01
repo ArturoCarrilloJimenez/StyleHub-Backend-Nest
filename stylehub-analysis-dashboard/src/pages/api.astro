@@ -1,0 +1,138 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import { endpoints } from '../data/endpoints';
+import '../styles/global.css';
+
+const totalEndpoints = endpoints.reduce((acc, module) => acc + module.routes.length, 0);
+const publicEndpoints = endpoints.reduce((acc, module) => 
+  acc + module.routes.filter(r => !r.auth).length, 0);
+const protectedEndpoints = totalEndpoints - publicEndpoints;
+---
+
+<Layout title="API Endpoints" currentPage="/api">
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-primary-600">{totalEndpoints}</div>
+          <div class="text-sm text-gray-600 mt-2">Total Endpoints</div>
+        </div>
+      </Card>
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-green-600">{publicEndpoints}</div>
+          <div class="text-sm text-gray-600 mt-2">Public</div>
+        </div>
+      </Card>
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-red-600">{protectedEndpoints}</div>
+          <div class="text-sm text-gray-600 mt-2">Protected</div>
+        </div>
+      </Card>
+    </div>
+
+    {endpoints.map(module => (
+      <Card title={`${module.module} Module`}>
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Path</th>
+                <th>Description</th>
+                <th>Auth</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {module.routes.map(route => (
+                <tr>
+                  <td>
+                    <span class={`badge ${
+                      route.method === 'GET' ? 'badge-info' :
+                      route.method === 'POST' ? 'badge-success' :
+                      route.method === 'PATCH' ? 'badge-warning' :
+                      'badge-danger'
+                    }`}>
+                      {route.method}
+                    </span>
+                  </td>
+                  <td class="font-mono text-sm">{route.path}</td>
+                  <td class="text-sm">{route.description}</td>
+                  <td>
+                    {route.auth ? (
+                      <span class="badge badge-danger">🔒 Required</span>
+                    ) : (
+                      <span class="badge badge-success">🌐 Public</span>
+                    )}
+                  </td>
+                  <td class="text-xs">
+                    {route.guards && (
+                      <div class="mb-1">
+                        <span class="text-gray-500">Guards:</span>
+                        {route.guards.map(guard => (
+                          <span class="badge ml-1">{guard}</span>
+                        ))}
+                      </div>
+                    )}
+                    {route.roles && (
+                      <div class="mb-1">
+                        <span class="text-gray-500">Roles:</span>
+                        {route.roles.map(role => (
+                          <span class="badge badge-warning ml-1">{role}</span>
+                        ))}
+                      </div>
+                    )}
+                    {route.dto && (
+                      <div>
+                        <span class="text-gray-500">DTO:</span>
+                        <span class="font-mono ml-1">{route.dto}</span>
+                      </div>
+                    )}
+                    {route.query && (
+                      <div>
+                        <span class="text-gray-500">Query:</span>
+                        <span class="font-mono ml-1">{route.query}</span>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    ))}
+
+    <Card title="HTTP Methods Distribution">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-3xl font-bold text-blue-600">
+            {endpoints.reduce((acc, m) => acc + m.routes.filter(r => r.method === 'GET').length, 0)}
+          </div>
+          <div class="text-sm text-gray-600 mt-1">GET</div>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-3xl font-bold text-green-600">
+            {endpoints.reduce((acc, m) => acc + m.routes.filter(r => r.method === 'POST').length, 0)}
+          </div>
+          <div class="text-sm text-gray-600 mt-1">POST</div>
+        </div>
+        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+          <div class="text-3xl font-bold text-yellow-600">
+            {endpoints.reduce((acc, m) => acc + m.routes.filter(r => r.method === 'PATCH').length, 0)}
+          </div>
+          <div class="text-sm text-gray-600 mt-1">PATCH</div>
+        </div>
+        <div class="text-center p-4 bg-red-50 rounded-lg">
+          <div class="text-3xl font-bold text-red-600">
+            {endpoints.reduce((acc, m) => acc + m.routes.filter(r => r.method === 'DELETE').length, 0)}
+          </div>
+          <div class="text-sm text-gray-600 mt-1">DELETE</div>
+        </div>
+      </div>
+    </Card>
+  </div>
+</Layout>

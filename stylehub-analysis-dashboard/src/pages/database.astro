@@ -1,0 +1,188 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import { entities } from '../data/databaseSchema';
+import '../styles/global.css';
+---
+
+<Layout title="Database Analysis" currentPage="/database">
+  <div class="space-y-6">
+    <!-- Database Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-primary-600">{entities.length}</div>
+          <div class="text-sm text-gray-600 mt-2">Total Entities</div>
+        </div>
+      </Card>
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-green-600">{entities.reduce((acc, e) => acc + e.relations.length, 0)}</div>
+          <div class="text-sm text-gray-600 mt-2">Total Relations</div>
+        </div>
+      </Card>
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-blue-600">PostgreSQL</div>
+          <div class="text-sm text-gray-600 mt-2">Database Type</div>
+        </div>
+      </Card>
+      <Card>
+        <div class="text-center">
+          <div class="text-4xl font-bold text-purple-600">TypeORM</div>
+          <div class="text-sm text-gray-600 mt-2">ORM</div>
+        </div>
+      </Card>
+    </div>
+
+    <!-- Entity Relationship Diagram -->
+    <Card title="Entity Relationship Diagram">
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {entities.map(entity => (
+            <div class="bg-white border-2 border-primary-200 rounded-lg p-4 shadow-sm">
+              <div class="flex items-center justify-between mb-3 pb-2 border-b-2 border-primary-500">
+                <h4 class="font-bold text-primary-700">{entity.name}</h4>
+                <span class="text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded">{entity.tableName}</span>
+              </div>
+              <div class="space-y-1 mb-3">
+                {entity.fields.slice(0, 5).map(field => (
+                  <div class="flex items-center text-xs">
+                    {field.isPrimary && <span class="text-yellow-500 mr-1">🔑</span>}
+                    {field.unique && <span class="text-blue-500 mr-1">⭐</span>}
+                    <span class="font-mono text-gray-700">{field.name}</span>
+                    <span class="text-gray-400 ml-1">: {field.type}</span>
+                  </div>
+                ))}
+                {entity.fields.length > 5 && (
+                  <div class="text-xs text-gray-400 italic">+{entity.fields.length - 5} more fields</div>
+                )}
+              </div>
+              {entity.relations.length > 0 && (
+                <div class="pt-2 border-t border-gray-200">
+                  <div class="text-xs font-semibold text-gray-600 mb-1">Relations:</div>
+                  {entity.relations.map(rel => (
+                    <div class="text-xs text-gray-500 flex items-center">
+                      <span class="mr-1">{rel.type === 'OneToMany' ? '1→N' : rel.type === 'ManyToOne' ? 'N→1' : '1→1'}</span>
+                      <span class="font-mono">{rel.target}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
+
+    <!-- Detailed Entity Information -->
+    {entities.map(entity => (
+      <Card title={`Entity: ${entity.name}`}>
+        <div class="mb-4">
+          <span class="text-sm text-gray-600">Table Name: </span>
+          <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded">{entity.tableName}</span>
+        </div>
+        
+        <h4 class="font-semibold text-gray-700 mb-3">Fields:</h4>
+        <div class="table-container mb-6">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Field Name</th>
+                <th>Type</th>
+                <th>Constraints</th>
+                <th>Default</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entity.fields.map(field => (
+                <tr>
+                  <td class="font-mono font-medium">{field.name}</td>
+                  <td><span class="badge badge-info">{field.type}</span></td>
+                  <td>
+                    <div class="flex gap-1">
+                      {field.isPrimary && <span class="badge badge-warning">PRIMARY KEY</span>}
+                      {field.unique && <span class="badge badge-success">UNIQUE</span>}
+                      {field.nullable && <span class="badge">NULLABLE</span>}
+                    </div>
+                  </td>
+                  <td class="text-gray-600">
+                    {field.default !== undefined ? (
+                      <span class="font-mono text-xs">{JSON.stringify(field.default)}</span>
+                    ) : (
+                      <span class="text-gray-400">-</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {entity.relations.length > 0 && (
+          <>
+            <h4 class="font-semibold text-gray-700 mb-3">Relations:</h4>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Target Entity</th>
+                    <th>Field</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entity.relations.map(rel => (
+                    <tr>
+                      <td>
+                        <span class={`badge ${
+                          rel.type === 'OneToMany' ? 'badge-success' : 
+                          rel.type === 'ManyToOne' ? 'badge-info' : 
+                          'badge-warning'
+                        }`}>
+                          {rel.type}
+                        </span>
+                      </td>
+                      <td class="font-mono font-medium">{rel.target}</td>
+                      <td class="font-mono text-sm">{rel.field}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </Card>
+    ))}
+
+    <!-- Database Features -->
+    <Card title="TypeORM Features">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <div class="font-semibold text-blue-900 mb-2">🔑 Auto-generated UUIDs</div>
+          <p class="text-sm text-blue-700">All primary keys use UUID v4 for unique identification</p>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <div class="font-semibold text-green-900 mb-2">⏰ Timestamps</div>
+          <p class="text-sm text-green-700">Automatic insertDate and updateDate tracking</p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <div class="font-semibold text-purple-900 mb-2">🎯 Enum Types</div>
+          <p class="text-sm text-purple-700">Type-safe enums for roles, sizes, gender, status</p>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg">
+          <div class="font-semibold text-yellow-900 mb-2">🔄 Cascade Operations</div>
+          <p class="text-sm text-yellow-700">Automatic cascade on cart products deletion</p>
+        </div>
+        <div class="p-4 bg-red-50 rounded-lg">
+          <div class="font-semibold text-red-900 mb-2">⚡ Eager/Lazy Loading</div>
+          <p class="text-sm text-red-700">Optimized data fetching strategies</p>
+        </div>
+        <div class="p-4 bg-indigo-50 rounded-lg">
+          <div class="font-semibold text-indigo-900 mb-2">🔒 Transactions</div>
+          <p class="text-sm text-indigo-700">ACID compliance with transaction support</p>
+        </div>
+      </div>
+    </Card>
+  </div>
+</Layout>

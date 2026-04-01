@@ -1,0 +1,48 @@
+---
+interface Props {
+  currentPage?: string;
+}
+
+const { currentPage } = Astro.props;
+
+const menuItems = [
+  { name: 'Overview', path: '/', icon: '🏠' },
+  { name: 'Database', path: '/database', icon: '🗄️' },
+  { name: 'API Endpoints', path: '/api', icon: '🔌' },
+  { name: 'Business Flows', path: '/business-flows', icon: '🔄' },
+  { name: 'Security', path: '/security', icon: '🔒' },
+  { name: 'Transactions', path: '/transactions', icon: '💳' },
+  { name: 'Error Handling', path: '/errors', icon: '⚠️' },
+  { name: 'Metrics & KPIs', path: '/metrics', icon: '📊' },
+  { name: 'Code Analysis', path: '/code', icon: '💻' },
+  { name: 'Integrations', path: '/integrations', icon: '🔗' }
+];
+---
+
+<aside class="w-64 bg-white border-r border-gray-200 overflow-y-auto">
+  <div class="p-6">
+    <h1 class="text-2xl font-bold text-primary-600">StyleHub</h1>
+    <p class="text-sm text-gray-500 mt-1">Analysis Dashboard</p>
+  </div>
+  
+  <nav class="px-3 pb-6">
+    {menuItems.map(item => (
+      <a 
+        href={item.path}
+        class={`sidebar-link ${currentPage === item.path ? 'active' : ''}`}
+      >
+        <span class="text-xl mr-3">{item.icon}</span>
+        <span>{item.name}</span>
+      </a>
+    ))}
+  </nav>
+  
+  <div class="px-6 py-4 border-t border-gray-200">
+    <p class="text-xs text-gray-500">
+      Backend Version: <span class="font-semibold">0.0.1</span>
+    </p>
+    <p class="text-xs text-gray-500 mt-1">
+      Framework: <span class="font-semibold">NestJS 11.0.1</span>
+    </p>
+  </div>
+</aside>

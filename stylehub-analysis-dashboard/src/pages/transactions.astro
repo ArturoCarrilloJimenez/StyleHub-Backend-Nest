@@ -1,0 +1,228 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import '../styles/global.css';
+
+const transactionalCode = `@Transactional()
+async checkOrder(orderPaymentDto: OrderPaymentDto, user: UserEntity) {
+  // 1. Busco el carrito del usuario
+  const cart = await this.cartService.findOneCart(user);
+  
+  if (!cart || !cart.products || cart.products.length === 0) {
+    throw new BadRequestException('The cart is empty');
+  }
+  
+  // 2. Verifico que haya stock
+  this.checkStockProducts(cart);
+  
+  // 3. Creo el pago de la sesión
+  const sessionPayment = await this.paymentService.createSessionPayment(
+    cart, user, orderPaymentDto
+  );
+  
+  // 4. Creo la orden con el usuario y el ID de la sesión
+  const order = await this.createOrder(user, sessionPayment.id);
+  
+  // 5. Agrego los productos del carrito a la orden
+  const orderProductPromise: Promise<OrderProductEntity | undefined>[] = [];
+  cart.products.map((productCart) => {
+    orderProductPromise.push(this.addOrderProduct(productCart, order));
+  });
+  await Promise.all(orderProductPromise);
+  
+  // 6. Calculo el total de la orden
+  const orderWithProducts = await this.orderUserRepository.findOne({
+    where: { id: order.id },
+    relations: ['orderProducts'],
+  });
+  
+  orderWithProducts.total_amount = orderWithProducts.orderProducts.reduce(
+    (total, item) => total + item.totalPrice, 0
+  );
+  
+  await this.orderUserRepository.save(orderWithProducts);
+  
+  return { url: sessionPayment.url };
+}`;
+
+const stockUpdateCode = `private async modifyStockProduct(order: OrderUserEntity) {
+  const updateProductPromise: Promise<any>[] = [];
+  
+  order.orderProducts.map((cartProduct) => {
+    const newStock = cartProduct.product.stock - cartProduct.quantity;
+    
+    if (newStock < 0)
+      throw new BadRequestException(
+        \`Product \${cartProduct.product.title} does not have enough stock\`
+      );
+    
+    updateProductPromise.push(
+      this.productService.update(cartProduct.product.id, {
+        stock: newStock,
+      }),
+    );
+  });
+  
+  await Promise.all(updateProductPromise);
+}`;
+---
+
+<Layout title="Transaction Analysis" currentPage="/transactions">
+  <div class="space-y-6">
+    <Card title="Transactional Operations Overview">
+      <p class="text-gray-700 mb-4">
+        El sistema utiliza el decorador <code class="bg-gray-100 px-2 py-1 rounded">@Transactional()</code> 
+        de la librería <strong>typeorm-transactional</strong> para garantizar la consistencia de datos en operaciones críticas.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-blue-50 rounded-lg text-center">
+          <div class="text-3xl font-bold text-blue-600">ACID</div>
+          <div class="text-sm text-gray-600 mt-2">Compliance</div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg text-center">
+          <div class="text-3xl font-bold text-green-600">All or Nothing</div>
+          <div class="text-sm text-gray-600 mt-2">Rollback on Error</div>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg text-center">
+          <div class="text-3xl font-bold text-purple-600">Isolation</div>
+          <div class="text-sm text-gray-600 mt-2">Data Consistency</div>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Order Checkout Transaction">
+      <p class="text-gray-700 mb-4">
+        La operación más crítica del sistema es el <strong>checkout</strong>. Esta operación debe ser atómica 
+        para garantizar que si falla cualquier paso, toda la operación se revierta.
+      </p>
+      <h4 class="font-semibold text-gray-800 mb-3">Pasos dentro de la transacción:</h4>
+      <ol class="list-decimal list-inside space-y-2 mb-4 text-gray-700">
+        <li>Validar que el carrito no esté vacío</li>
+        <li>Verificar disponibilidad de stock para todos los productos</li>
+        <li>Crear sesión de pago en Stripe</li>
+        <li>Crear registro de orden en la base de datos</li>
+        <li>Crear registros de productos de la orden</li>
+        <li>Calcular y guardar el total de la orden</li>
+      </ol>
+      <pre class="code-block"><code>{transactionalCode}</code></pre>
+    </Card>
+
+    <Card title="Stock Update Transaction">
+      <p class="text-gray-700 mb-4">
+        Cuando un pago es confirmado por Stripe (vía webhook), se actualiza el stock de los productos. 
+        Esta operación también es transaccional para evitar inconsistencias.
+      </p>
+      <h4 class="font-semibold text-gray-800 mb-3">Proceso:</h4>
+      <ol class="list-decimal list-inside space-y-2 mb-4 text-gray-700">
+        <li>Iterar sobre todos los productos de la orden</li>
+        <li>Calcular nuevo stock: <code class="bg-gray-100 px-2 py-1 rounded">newStock = currentStock - quantity</code></li>
+        <li>Validar que el nuevo stock no sea negativo</li>
+        <li>Actualizar cada producto en la base de datos</li>
+        <li>Si alguna actualización falla, revertir todas</li>
+      </ol>
+      <pre class="code-block"><code>{stockUpdateCode}</code></pre>
+    </Card>
+
+    <Card title="Transaction Benefits">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-green-50 rounded-lg">
+          <h4 class="font-semibold text-green-900 mb-2">✅ Atomicity</h4>
+          <p class="text-sm text-green-700">
+            Todas las operaciones se completan o ninguna se aplica. No hay estados intermedios.
+          </p>
+        </div>
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <h4 class="font-semibold text-blue-900 mb-2">🔒 Consistency</h4>
+          <p class="text-sm text-blue-700">
+            Los datos siempre permanecen en un estado válido, respetando todas las reglas de negocio.
+          </p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <h4 class="font-semibold text-purple-900 mb-2">🔐 Isolation</h4>
+          <p class="text-sm text-purple-700">
+            Las transacciones concurrentes no interfieren entre sí, evitando condiciones de carrera.
+          </p>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg">
+          <h4 class="font-semibold text-yellow-900 mb-2">💾 Durability</h4>
+          <p class="text-sm text-yellow-700">
+            Una vez confirmada, la transacción persiste incluso ante fallos del sistema.
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Error Scenarios & Rollback">
+      <div class="space-y-4">
+        <div class="border-l-4 border-red-500 pl-4 py-2 bg-red-50">
+          <h4 class="font-semibold text-red-900 mb-1">Scenario 1: Stock Insuficiente</h4>
+          <p class="text-sm text-red-700">
+            Si durante el checkout se detecta que un producto no tiene stock suficiente, 
+            se lanza una excepción y toda la transacción se revierte. No se crea la orden ni la sesión de pago.
+          </p>
+        </div>
+        <div class="border-l-4 border-orange-500 pl-4 py-2 bg-orange-50">
+          <h4 class="font-semibold text-orange-900 mb-1">Scenario 2: Fallo en Stripe</h4>
+          <p class="text-sm text-orange-700">
+            Si la creación de la sesión de pago en Stripe falla, la transacción se revierte 
+            y no se crea ningún registro de orden en la base de datos.
+          </p>
+        </div>
+        <div class="border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50">
+          <h4 class="font-semibold text-yellow-900 mb-1">Scenario 3: Error en Base de Datos</h4>
+          <p class="text-sm text-yellow-700">
+            Si hay un error al guardar la orden o los productos de la orden, toda la operación 
+            se revierte, incluyendo cualquier cambio previo en la transacción.
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Transaction Configuration">
+      <p class="text-gray-700 mb-4">
+        Para habilitar las transacciones, el proyecto utiliza:
+      </p>
+      <div class="space-y-3">
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="font-semibold text-gray-800 mb-2">1. Librería</h4>
+          <code class="text-sm">typeorm-transactional@0.5.0</code>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="font-semibold text-gray-800 mb-2">2. Decorador</h4>
+          <code class="text-sm">@Transactional()</code> - Se aplica a métodos de servicio
+        </div>
+        <div class="bg-gray-50 p-4 rounded-lg">
+          <h4 class="font-semibold text-gray-800 mb-2">3. Propagación</h4>
+          <p class="text-sm text-gray-700">
+            Las transacciones se propagan automáticamente a todos los métodos llamados dentro del método decorado
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Best Practices Implemented">
+      <ul class="space-y-2 text-gray-700">
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Transacciones solo en operaciones críticas (checkout, stock update)</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Validaciones antes de iniciar operaciones costosas</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Uso de Promise.all() para operaciones paralelas dentro de transacciones</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Manejo explícito de errores con excepciones descriptivas</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Rollback automático en caso de cualquier error</span>
+        </li>
+      </ul>
+    </Card>
+  </div>
+</Layout>

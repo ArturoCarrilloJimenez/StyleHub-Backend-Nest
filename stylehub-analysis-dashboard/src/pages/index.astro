@@ -1,0 +1,240 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import MetricCard from '../components/MetricCard.astro';
+import { systemOverview, modules, techStack, architecture } from '../data/systemData';
+import { productStats } from '../data/seedProducts';
+import '../styles/global.css';
+---
+
+<Layout title="System Overview" currentPage="/">
+  <div class="space-y-6">
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <MetricCard 
+        title="Total Products" 
+        value={productStats.total} 
+        icon="📦"
+        subtitle="In catalog"
+      />
+      <MetricCard 
+        title="Total Stock" 
+        value={productStats.totalStock} 
+        icon="📊"
+        subtitle="Units available"
+      />
+      <MetricCard 
+        title="Modules" 
+        value={modules.length} 
+        icon="🧩"
+        subtitle="Backend modules"
+      />
+      <MetricCard 
+        title="Database" 
+        value="PostgreSQL" 
+        icon="🗄️"
+        subtitle="With TypeORM"
+      />
+    </div>
+
+    <!-- System Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card title="System Information">
+        <div class="space-y-3">
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Name:</span>
+            <span class="text-gray-900">{systemOverview.name}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Version:</span>
+            <span class="text-gray-900">{systemOverview.version}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Framework:</span>
+            <span class="text-gray-900">{systemOverview.framework}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Language:</span>
+            <span class="text-gray-900">{systemOverview.language}</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Database:</span>
+            <span class="text-gray-900">{systemOverview.database}</span>
+          </div>
+          <div class="flex justify-between py-2">
+            <span class="font-medium text-gray-600">ORM:</span>
+            <span class="text-gray-900">{systemOverview.orm}</span>
+          </div>
+        </div>
+      </Card>
+
+      <Card title="Architecture">
+        <div class="space-y-3">
+          <div class="flex justify-between py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600">Pattern:</span>
+            <span class="text-gray-900">{architecture.pattern}</span>
+          </div>
+          <div class="py-2 border-b border-gray-100">
+            <span class="font-medium text-gray-600 block mb-2">Layers:</span>
+            <div class="flex flex-wrap gap-2">
+              {architecture.layers.map(layer => (
+                <span class="badge badge-info">{layer}</span>
+              ))}
+            </div>
+          </div>
+          <div class="py-2">
+            <span class="font-medium text-gray-600 block mb-2">Principles:</span>
+            <div class="flex flex-wrap gap-2">
+              {architecture.principles.map(principle => (
+                <span class="badge badge-success">{principle}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <!-- Modules -->
+    <Card title="Backend Modules">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {modules.map(module => (
+          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            <h4 class="font-semibold text-gray-800 mb-2">{module.name}</h4>
+            <p class="text-sm text-gray-600 mb-3">{module.description}</p>
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <span>📁 {module.files} files</span>
+              <span>📝 ~{module.lines} lines</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <!-- Tech Stack -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <Card title="Backend Stack">
+        <div class="space-y-3">
+          {techStack.backend.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Database & ORM">
+        <div class="space-y-3">
+          {techStack.database.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Authentication">
+        <div class="space-y-3">
+          {techStack.authentication.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Validation">
+        <div class="space-y-3">
+          {techStack.validation.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Integrations">
+        <div class="space-y-3">
+          {techStack.integrations.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card title="Documentation">
+        <div class="space-y-3">
+          {techStack.documentation.map(tech => (
+            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div>
+                <span class="font-medium text-gray-800">{tech.name}</span>
+                <span class="text-xs text-gray-500 ml-2">{tech.purpose}</span>
+              </div>
+              <span class="text-sm text-gray-600">{tech.version}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+
+    <!-- Product Statistics -->
+    <Card title="Product Catalog Statistics">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-3xl font-bold text-blue-600">{productStats.byType.shirts}</div>
+          <div class="text-sm text-gray-600 mt-1">Shirts</div>
+        </div>
+        <div class="text-center p-4 bg-purple-50 rounded-lg">
+          <div class="text-3xl font-bold text-purple-600">{productStats.byType.hoodies}</div>
+          <div class="text-sm text-gray-600 mt-1">Hoodies</div>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-3xl font-bold text-green-600">{productStats.byType.hats}</div>
+          <div class="text-sm text-gray-600 mt-1">Hats</div>
+        </div>
+        <div class="text-center p-4 bg-red-50 rounded-lg">
+          <div class="text-3xl font-bold text-red-600">{productStats.outOfStock}</div>
+          <div class="text-sm text-gray-600 mt-1">Out of Stock</div>
+        </div>
+      </div>
+      <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-2xl font-bold text-gray-700">${productStats.minPrice}</div>
+          <div class="text-sm text-gray-600 mt-1">Min Price</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-2xl font-bold text-gray-700">${productStats.maxPrice}</div>
+          <div class="text-sm text-gray-600 mt-1">Max Price</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-2xl font-bold text-gray-700">${productStats.averagePrice}</div>
+          <div class="text-sm text-gray-600 mt-1">Avg Price</div>
+        </div>
+        <div class="text-center p-4 bg-gray-50 rounded-lg">
+          <div class="text-2xl font-bold text-gray-700">{productStats.totalStock}</div>
+          <div class="text-sm text-gray-600 mt-1">Total Units</div>
+        </div>
+      </div>
+    </Card>
+  </div>
+</Layout>

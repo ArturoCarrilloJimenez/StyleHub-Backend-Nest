@@ -1,0 +1,125 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import { authFlow, purchaseFlow, paymentFlow, stockManagement } from '../data/businessFlows';
+import '../styles/global.css';
+---
+
+<Layout title="Business Flows" currentPage="/business-flows">
+  <div class="space-y-6">
+    <Card title={authFlow.title}>
+      <div class="space-y-4">
+        {authFlow.steps.map((step, index) => (
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-10 h-10 bg-primary-500 text-white rounded-full flex items-center justify-center font-bold mr-4">
+              {step.step}
+            </div>
+            <div class="flex-1 bg-gray-50 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-800 mb-2">{step.action}</h4>
+              <div class="text-sm space-y-1">
+                <div><span class="text-gray-600">Component:</span> <span class="font-mono text-primary-600">{step.component}</span></div>
+                {step.method && <div><span class="text-gray-600">Method:</span> <span class="font-mono">{step.method}</span></div>}
+                {step.details && <div><span class="text-gray-600">Details:</span> <span class="text-gray-700">{step.details}</span></div>}
+                {step.response && <div><span class="text-gray-600">Response:</span> <span class="font-mono text-green-600">{step.response}</span></div>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title={purchaseFlow.title}>
+      <div class="space-y-4">
+        {purchaseFlow.steps.map((step) => (
+          <div class="flex items-start">
+            <div class={`flex-shrink-0 w-10 h-10 ${step.transaction ? 'bg-red-500' : 'bg-blue-500'} text-white rounded-full flex items-center justify-center font-bold mr-4`}>
+              {step.step}
+            </div>
+            <div class="flex-1 bg-gray-50 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-800 mb-2">
+                {step.action}
+                {step.transaction && <span class="ml-2 badge badge-danger">TRANSACTION</span>}
+              </h4>
+              <div class="text-sm space-y-1">
+                <div><span class="text-gray-600">Component:</span> <span class="font-mono text-primary-600">{step.component}</span></div>
+                {step.method && <div><span class="text-gray-600">Method:</span> <span class="font-mono">{step.method}</span></div>}
+                {step.details && <div><span class="text-gray-600">Details:</span> <span class="text-gray-700">{step.details}</span></div>}
+                {step.guard && <div><span class="text-gray-600">Guard:</span> <span class="badge badge-warning">{step.guard}</span></div>}
+                {step.template && <div><span class="text-gray-600">Template:</span> <span class="font-mono">{step.template}</span></div>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title={paymentFlow.title}>
+      <div class="space-y-4">
+        {paymentFlow.steps.map((step) => (
+          <div class="flex items-start">
+            <div class="flex-shrink-0 w-10 h-10 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-4">
+              {step.step}
+            </div>
+            <div class="flex-1 bg-gray-50 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-800 mb-2">{step.action}</h4>
+              <div class="text-sm space-y-1">
+                {step.component && <div><span class="text-gray-600">Component:</span> <span class="font-mono text-primary-600">{step.component}</span></div>}
+                {step.method && <div><span class="text-gray-600">Method:</span> <span class="font-mono">{step.method}</span></div>}
+                {step.details && <div><span class="text-gray-600">Details:</span> <span class="text-gray-700">{step.details}</span></div>}
+                {step.endpoint && <div><span class="text-gray-600">Endpoint:</span> <span class="font-mono">{step.endpoint}</span></div>}
+                {step.event && <div><span class="text-gray-600">Event:</span> <span class="badge badge-info">{step.event}</span></div>}
+                {step.status && <div><span class="text-gray-600">Status:</span> <span class="badge badge-success">{step.status}</span></div>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title={stockManagement.title}>
+      <div class="space-y-4">
+        {stockManagement.steps.map((step) => (
+          <div class="flex items-start">
+            <div class={`flex-shrink-0 w-10 h-10 ${step.transaction ? 'bg-red-500' : 'bg-purple-500'} text-white rounded-full flex items-center justify-center font-bold mr-4`}>
+              {step.step}
+            </div>
+            <div class="flex-1 bg-gray-50 rounded-lg p-4">
+              <h4 class="font-semibold text-gray-800 mb-2">
+                {step.action}
+                {step.transaction && <span class="ml-2 badge badge-danger">TRANSACTION</span>}
+              </h4>
+              <div class="text-sm space-y-1">
+                {step.component && <div><span class="text-gray-600">Component:</span> <span class="font-mono text-primary-600">{step.component}</span></div>}
+                {step.method && <div><span class="text-gray-600">Method:</span> <span class="font-mono">{step.method}</span></div>}
+                {step.details && <div><span class="text-gray-600">Details:</span> <span class="text-gray-700">{step.details}</span></div>}
+                {step.trigger && <div><span class="text-gray-600">Trigger:</span> <span class="badge badge-info">{step.trigger}</span></div>}
+                {step.formula && <div><span class="text-gray-600">Formula:</span> <span class="font-mono text-green-600">{step.formula}</span></div>}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+
+    <Card title="Key Observations">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <h4 class="font-semibold text-blue-900 mb-2">🔄 Transactional Operations</h4>
+          <p class="text-sm text-blue-700">Critical operations like checkout and stock updates use @Transactional decorator to ensure data consistency</p>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <h4 class="font-semibold text-green-900 mb-2">🔒 Security First</h4>
+          <p class="text-sm text-green-700">All sensitive operations require JWT authentication and role-based authorization</p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <h4 class="font-semibold text-purple-900 mb-2">📧 Email Notifications</h4>
+          <p class="text-sm text-purple-700">Automated email confirmations sent after successful order completion</p>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg">
+          <h4 class="font-semibold text-yellow-900 mb-2">💳 Stripe Integration</h4>
+          <p class="text-sm text-yellow-700">Secure payment processing with webhook confirmation for order status updates</p>
+        </div>
+      </div>
+    </Card>
+  </div>
+</Layout>

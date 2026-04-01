@@ -1,0 +1,341 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import '../styles/global.css';
+
+const stripeConfig = `// Stripe Configuration
+@Module({
+  providers: [
+    {
+      provide: 'STRIPE_CLIENT',
+      useFactory: (configService: ConfigService) => {
+        return new Stripe(configService.get('STRIPE_SECRET_KEY'), {
+          apiVersion: '2024-11-20.acacia',
+        });
+      },
+      inject: [ConfigService],
+    },
+    PaymentService,
+  ],
+  exports: [PaymentService],
+})
+export class PaymentModule {}`;
+
+const emailConfig = `// Nodemailer Configuration
+@Injectable()
+export class EmailService {
+  private transporter: Transporter;
+
+  constructor(private readonly configService: ConfigService) {
+    this.transporter = createTransport({
+      host: this.configService.get('MAIL_HOST'),
+      port: this.configService.get('MAIL_PORT'),
+      secure: false,
+      auth: {
+        user: this.configService.get('MAIL_USER'),
+        pass: this.configService.get('MAIL_PASSWORD'),
+      },
+    });
+  }
+
+  async send(options: SendMailOptions) {
+    await this.transporter.sendMail(options);
+  }
+}`;
+
+const typeormConfig = `// TypeORM Configuration
+TypeOrmModule.forRoot({
+  type: 'postgres',
+  host: process.env.HOST,
+  port: parseInt(process.env.DB_PORT ?? '5432'),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DATABASE,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+  entities: [
+    __dirname + '/**/entities/*.entity{.ts,.js}',
+    ProductType,
+    PasswordReset,
+  ],
+  synchronize: true,
+})`;
+---
+
+<Layout title="External Integrations" currentPage="/integrations">
+  <div class="space-y-6">
+    <Card title="Stripe Payment Integration">
+      <p class="text-gray-700 mb-4">
+        Integración completa con Stripe para procesamiento de pagos, incluyendo checkout sessions y webhooks.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="p-4 bg-purple-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-purple-600">v18.1.0</div>
+          <div class="text-sm text-gray-600 mt-1">Stripe SDK</div>
+        </div>
+        <div class="p-4 bg-blue-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-blue-600">Checkout</div>
+          <div class="text-sm text-gray-600 mt-1">Sessions API</div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-green-600">Webhooks</div>
+          <div class="text-sm text-gray-600 mt-1">Event Handling</div>
+        </div>
+      </div>
+      <pre class="code-block"><code>{stripeConfig}</code></pre>
+      
+      <h4 class="font-semibold text-gray-800 mt-6 mb-3">Características implementadas:</h4>
+      <ul class="space-y-2 text-gray-700">
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Checkout Sessions con múltiples métodos de pago (card, paypal, sepa_debit)</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Configuración de envío con opciones de delivery</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Webhooks para confirmación de pagos (checkout.session.completed)</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>Verificación de firma de webhooks para seguridad</span>
+        </li>
+        <li class="flex items-start">
+          <span class="text-green-500 mr-2">✓</span>
+          <span>URLs de éxito y cancelación personalizables</span>
+        </li>
+      </ul>
+    </Card>
+
+    <Card title="Nodemailer Email Service">
+      <p class="text-gray-700 mb-4">
+        Servicio de envío de emails transaccionales usando Nodemailer con soporte para templates HTML.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="p-4 bg-blue-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-blue-600">v7.0.3</div>
+          <div class="text-sm text-gray-600 mt-1">Nodemailer</div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-green-600">SMTP</div>
+          <div class="text-sm text-gray-600 mt-1">Protocol</div>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-purple-600">HTML</div>
+          <div class="text-sm text-gray-600 mt-1">Templates</div>
+        </div>
+      </div>
+      <pre class="code-block"><code>{emailConfig}</code></pre>
+      
+      <h4 class="font-semibold text-gray-800 mt-6 mb-3">Tipos de emails:</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <h5 class="font-semibold text-gray-800 mb-2">📧 Order Confirmation</h5>
+          <p class="text-sm text-gray-600">
+            Email enviado automáticamente después de un pago exitoso con detalles de la orden
+          </p>
+        </div>
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <h5 class="font-semibold text-gray-800 mb-2">🔑 Password Reset</h5>
+          <p class="text-sm text-gray-600">
+            Email con token seguro para recuperación de contraseña
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="TypeORM Database Integration">
+      <p class="text-gray-700 mb-4">
+        ORM completo para PostgreSQL con soporte para migraciones, relaciones y transacciones.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="p-4 bg-blue-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-blue-600">v0.3.22</div>
+          <div class="text-sm text-gray-600 mt-1">TypeORM</div>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-green-600">PostgreSQL</div>
+          <div class="text-sm text-gray-600 mt-1">Database</div>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-purple-600">8</div>
+          <div class="text-sm text-gray-600 mt-1">Entities</div>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg text-center">
+          <div class="text-2xl font-bold text-yellow-600">SSL</div>
+          <div class="text-sm text-gray-600 mt-1">Secure</div>
+        </div>
+      </div>
+      <pre class="code-block"><code>{typeormConfig}</code></pre>
+      
+      <h4 class="font-semibold text-gray-800 mt-6 mb-3">Características:</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Auto-sincronización de esquema (development)</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Relaciones eager y lazy loading</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Query builders para consultas complejas</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Decoradores para definir entidades</span>
+          </li>
+        </ul>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Soporte para transacciones ACID</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Hooks de ciclo de vida (@BeforeInsert, etc.)</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Conexión SSL para producción</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Repository pattern integrado</span>
+          </li>
+        </ul>
+      </div>
+    </Card>
+
+    <Card title="File Storage">
+      <p class="text-gray-700 mb-4">
+        Sistema de almacenamiento de archivos local para imágenes de productos.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <h5 class="font-semibold text-blue-900 mb-2">📁 Static Files</h5>
+          <p class="text-sm text-blue-700">
+            Servicio de archivos estáticos en <code>/static/products</code>
+          </p>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <h5 class="font-semibold text-green-900 mb-2">📤 Upload</h5>
+          <p class="text-sm text-green-700">
+            Endpoint protegido para subir imágenes (solo admin)
+          </p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <h5 class="font-semibold text-purple-900 mb-2">🖼️ Formats</h5>
+          <p class="text-sm text-purple-700">
+            Soporte para JPG, PNG con validación de tipo
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Swagger Documentation">
+      <p class="text-gray-700 mb-4">
+        Documentación automática de la API con Swagger/OpenAPI.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <h5 class="font-semibold text-gray-800 mb-2">📚 Features</h5>
+          <ul class="text-sm text-gray-700 space-y-1">
+            <li>• Documentación interactiva de endpoints</li>
+            <li>• Schemas de DTOs y entidades</li>
+            <li>• Autenticación Bearer token</li>
+            <li>• Try-it-out functionality</li>
+          </ul>
+        </div>
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <h5 class="font-semibold text-gray-800 mb-2">🔗 Access</h5>
+          <p class="text-sm text-gray-700 mb-2">
+            Disponible en: <code class="bg-gray-200 px-2 py-1 rounded">/api</code>
+          </p>
+          <p class="text-xs text-gray-600">
+            Generado automáticamente desde decoradores @ApiProperty
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Environment Variables">
+      <p class="text-gray-700 mb-4">
+        Configuración mediante variables de entorno usando @nestjs/config:
+      </p>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Variable</th>
+              <th>Purpose</th>
+              <th>Required</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="text-xs">HOST</code></td>
+              <td>Database host</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">DB_PORT</code></td>
+              <td>Database port</td>
+              <td><span class="badge badge-warning">Optional</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">DB_USERNAME</code></td>
+              <td>Database user</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">DB_PASSWORD</code></td>
+              <td>Database password</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">DATABASE</code></td>
+              <td>Database name</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">JWT_SECRET</code></td>
+              <td>JWT signing key</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">STRIPE_SECRET_KEY</code></td>
+              <td>Stripe API key</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">STRIPE_WEBHOOK_SECRET</code></td>
+              <td>Stripe webhook secret</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">MAIL_HOST</code></td>
+              <td>SMTP host</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">MAIL_USER</code></td>
+              <td>SMTP username</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+            <tr>
+              <td><code class="text-xs">MAIL_PASSWORD</code></td>
+              <td>SMTP password</td>
+              <td><span class="badge badge-danger">Yes</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  </div>
+</Layout>

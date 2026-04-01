@@ -1,0 +1,254 @@
+---
+import Layout from '../components/Layout.astro';
+import Card from '../components/Card.astro';
+import '../styles/global.css';
+
+const decoratorExample = `// Decoradores de NestJS
+@Injectable()
+export class ProductsService {
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+    private readonly productTypeService: ProductTypeService,
+  ) {}
+}
+
+@Controller('products')
+export class ProductsController {
+  @Get()
+  findAll(@Query() params: FindAllProductsDto) {
+    return this.productsService.findAll(params);
+  }
+  
+  @Post()
+  @Auth(ValidRoles.admin)
+  create(@Body() dto: CreateProductDto, @GetUser() user: UserEntity) {
+    return this.productsService.create(dto, user);
+  }
+}`;
+
+const dtoExample = `// DTO con validaciones
+export class CreateProductDto {
+  @IsString()
+  @MinLength(1)
+  title: string;
+
+  @IsNumber()
+  @IsPositive()
+  @IsOptional()
+  price?: number;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsInt()
+  @Min(0)
+  @IsOptional()
+  stock?: number;
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  sizes?: string[];
+
+  @IsIn(['men', 'women', 'kid', 'unisex'])
+  @IsOptional()
+  gender?: string;
+
+  @IsString()
+  type: string;
+}`;
+
+const repositoryPattern = `// Repository Pattern con TypeORM
+@Injectable()
+export class ProductsService {
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
+  ) {}
+
+  async findAll(params: FindAllProductsDto) {
+    const { limit = 12, page = 0, search = '' } = params;
+    
+    const data = await this.productRepository.findAndCount({
+      take: limit,
+      skip: (page - 1) * limit,
+      where: [
+        { title: ILike(\`%\${search}%\`) },
+        { description: ILike(\`%\${search}%\`) }
+      ],
+    });
+    
+    return paginateResponse(data, page, limit);
+  }
+}`;
+---
+
+<Layout title="Code Analysis" currentPage="/code">
+  <div class="space-y-6">
+    <Card title="Design Patterns">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-blue-50 rounded-lg">
+          <h4 class="font-semibold text-blue-900 mb-2">🏗️ Repository Pattern</h4>
+          <p class="text-sm text-blue-700">
+            Abstracción de la capa de datos usando TypeORM repositories para separar la lógica de negocio del acceso a datos
+          </p>
+        </div>
+        <div class="p-4 bg-green-50 rounded-lg">
+          <h4 class="font-semibold text-green-900 mb-2">💉 Dependency Injection</h4>
+          <p class="text-sm text-green-700">
+            Inyección de dependencias nativa de NestJS para desacoplar componentes y facilitar testing
+          </p>
+        </div>
+        <div class="p-4 bg-purple-50 rounded-lg">
+          <h4 class="font-semibold text-purple-900 mb-2">📦 DTO Pattern</h4>
+          <p class="text-sm text-purple-700">
+            Data Transfer Objects para validar y transformar datos de entrada/salida
+          </p>
+        </div>
+        <div class="p-4 bg-yellow-50 rounded-lg">
+          <h4 class="font-semibold text-yellow-900 mb-2">🎯 Strategy Pattern</h4>
+          <p class="text-sm text-yellow-700">
+            Passport strategies para diferentes métodos de autenticación (JWT, Local)
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Decorators Usage">
+      <p class="text-gray-700 mb-4">
+        NestJS hace uso extensivo de decoradores para configurar el comportamiento de clases y métodos:
+      </p>
+      <pre class="code-block"><code>{decoratorExample}</code></pre>
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+        <span class="badge badge-info">@Injectable()</span>
+        <span class="badge badge-info">@Controller()</span>
+        <span class="badge badge-success">@Get()</span>
+        <span class="badge badge-success">@Post()</span>
+        <span class="badge badge-warning">@Body()</span>
+        <span class="badge badge-warning">@Query()</span>
+        <span class="badge badge-warning">@Param()</span>
+        <span class="badge">@InjectRepository()</span>
+        <span class="badge">@Auth()</span>
+        <span class="badge">@GetUser()</span>
+      </div>
+    </Card>
+
+    <Card title="DTO Validation">
+      <p class="text-gray-700 mb-4">
+        Validación automática de datos usando class-validator:
+      </p>
+      <pre class="code-block"><code>{dtoExample}</code></pre>
+    </Card>
+
+    <Card title="Repository Pattern Implementation">
+      <pre class="code-block"><code>{repositoryPattern}</code></pre>
+    </Card>
+
+    <Card title="SOLID Principles">
+      <div class="space-y-4">
+        <div class="border-l-4 border-blue-500 pl-4 py-2">
+          <h4 class="font-semibold text-gray-800 mb-1">S - Single Responsibility</h4>
+          <p class="text-sm text-gray-600">
+            Cada servicio tiene una única responsabilidad: ProductsService maneja productos, AuthService maneja autenticación
+          </p>
+        </div>
+        <div class="border-l-4 border-green-500 pl-4 py-2">
+          <h4 class="font-semibold text-gray-800 mb-1">O - Open/Closed</h4>
+          <p class="text-sm text-gray-600">
+            Los guards y strategies son extensibles sin modificar código existente
+          </p>
+        </div>
+        <div class="border-l-4 border-purple-500 pl-4 py-2">
+          <h4 class="font-semibold text-gray-800 mb-1">L - Liskov Substitution</h4>
+          <p class="text-sm text-gray-600">
+            Las implementaciones de Passport Strategy pueden sustituirse sin afectar el funcionamiento
+          </p>
+        </div>
+        <div class="border-l-4 border-yellow-500 pl-4 py-2">
+          <h4 class="font-semibold text-gray-800 mb-1">I - Interface Segregation</h4>
+          <p class="text-sm text-gray-600">
+            DTOs específicos para cada operación (CreateProductDto, UpdateProductDto, FindAllProductsDto)
+          </p>
+        </div>
+        <div class="border-l-4 border-red-500 pl-4 py-2">
+          <h4 class="font-semibold text-gray-800 mb-1">D - Dependency Inversion</h4>
+          <p class="text-sm text-gray-600">
+            Los servicios dependen de abstracciones (Repository) no de implementaciones concretas
+          </p>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Code Metrics">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="text-center p-4 bg-blue-50 rounded-lg">
+          <div class="text-3xl font-bold text-blue-600">8</div>
+          <div class="text-sm text-gray-600 mt-1">Modules</div>
+        </div>
+        <div class="text-center p-4 bg-green-50 rounded-lg">
+          <div class="text-3xl font-bold text-green-600">~2,280</div>
+          <div class="text-sm text-gray-600 mt-1">Lines of Code</div>
+        </div>
+        <div class="text-center p-4 bg-purple-50 rounded-lg">
+          <div class="text-3xl font-bold text-purple-600">36</div>
+          <div class="text-sm text-gray-600 mt-1">Files</div>
+        </div>
+        <div class="text-center p-4 bg-yellow-50 rounded-lg">
+          <div class="text-3xl font-bold text-yellow-600">8</div>
+          <div class="text-sm text-gray-600 mt-1">Entities</div>
+        </div>
+      </div>
+    </Card>
+
+    <Card title="Best Practices Implemented">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Modular architecture con separación de concerns</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Inyección de dependencias para testabilidad</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>DTOs para validación y transformación</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Repository pattern para abstracción de datos</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Guards para autorización declarativa</span>
+          </li>
+        </ul>
+        <ul class="space-y-2 text-sm">
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Manejo centralizado de errores</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Logging estructurado por servicio</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Transacciones para operaciones críticas</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>TypeScript para type safety</span>
+          </li>
+          <li class="flex items-start">
+            <span class="text-green-500 mr-2">✓</span>
+            <span>Documentación con Swagger</span>
+          </li>
+        </ul>
+      </div>
+    </Card>
+  </div>
+</Layout>
