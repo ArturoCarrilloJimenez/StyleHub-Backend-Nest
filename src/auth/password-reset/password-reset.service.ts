@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
@@ -15,6 +17,8 @@ import { EmailTemplateService } from 'src/message/email/templates/email.template
 
 @Injectable()
 export class ResetPasswordService {
+  private readonly logger = new Logger('ResetPasswordService');
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -50,14 +54,23 @@ export class ResetPasswordService {
       );
     }
 
-    await this.emailService.send({
-      to: `${email}`,
-      subject: 'StyleHub Password Reset Instructions',
-      htmlBody: this.emailTemplate.createTemplate(
-        'reset-password',
-        passwordReset.user.fullName,
-      )(`auth/reset-password/${passwordReset.id}`),
-    });
+    try {
+      await this.emailService.send({
+        to: `${email}`,
+        subject: 'StyleHub Password Reset Instructions',
+        htmlBody: this.emailTemplate.createTemplate(
+          'reset-password',
+          passwordReset.user.fullName,
+        )(`auth/reset-password/${passwordReset.id}`),
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send password reset email to ${email}: ${error instanceof Error ? error.message : error}`,
+      );
+      throw new InternalServerErrorException(
+        'Failed to send the password reset email. Please try again later.',
+      );
+    }
 
     return { sendEmail: true };
   }
