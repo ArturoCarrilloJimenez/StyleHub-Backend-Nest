@@ -214,14 +214,20 @@ export class OrderService {
     await Promise.all(updateProductPromise);
   }
 
-  private async sendEmailOrder(order: OrderUserEntity) {
-    await this.emailService.send({
-      to: order.user.email,
-      subject: 'Order Confirmation',
-      htmlBody: this.emailTemplateService.createTemplate(
-        'invoice',
-        order.user.fullName,
-      )(order),
-    });
+  private async sendEmailOrder(order: OrderUserEntity): Promise<void> {
+    try {
+      await this.emailService.send({
+        to: order.user.email,
+        subject: 'Order Confirmation',
+        htmlBody: this.emailTemplateService.createTemplate(
+          'invoice',
+          order.user.fullName,
+        )(order),
+      });
+    } catch (error) {
+      this.logger.error(
+        `Failed to send order confirmation email for order ${order.id}: ${error instanceof Error ? error.message : error}`,
+      );
+    }
   }
 }

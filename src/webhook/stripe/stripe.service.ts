@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OrderStatus } from 'src/order/interfaces/order.interfaces';
 import { OrderService } from 'src/order/order.service';
@@ -6,6 +6,8 @@ import Stripe from 'stripe';
 
 @Injectable()
 export class StripeService {
+  private readonly logger = new Logger('StripeService');
+
   constructor(
     @Inject('STRIPE_CLIENT') private readonly stripeClient: Stripe,
 
@@ -18,14 +20,23 @@ export class StripeService {
     const endpointSecret =
       this.configService.get<string>('STRIPE_WEBHOOK_SECRET') ?? '';
 
+    let event: Stripe.Event;
+
     try {
       // Verificar la firma del evento
-      const event = this.stripeClient.webhooks.constructEvent(
+      event = this.stripeClient.webhooks.constructEvent(
         body,
         sig,
         endpointSecret,
       );
+    } catch (err) {
+      this.logger.error(
+        `Webhook signature verification failed: ${err instanceof Error ? err.message : err}`,
+      );
+      throw new Error('Webhook signature verification failed');
+    }
 
+    try {
       // Procesar el evento según su tipo
       switch (event.type) {
         case 'checkout.session.async_payment_failed':
@@ -65,8 +76,11 @@ export class StripeService {
         default:
           break;
       }
-    } catch (err: any) {
-      throw new Error('Webhook signature verification failed');
+    } catch (err) {
+      this.logger.error(
+        `Error processing webhook event ${event.type}: ${err instanceof Error ? err.message : err}`,
+      );
+      throw err;
     }
   }
 }
